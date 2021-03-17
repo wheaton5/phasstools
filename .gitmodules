@@ -1,3 +1,9 @@
 [submodule "purge_dups"]
 	path = purge_dups
 	url = https://github.com/dfguan/purge_dups.git
+[submodule "het_snp_kmers"]
+	path = het_snp_kmers
+	url = https://github.com/wheaton5/het_snp_kmers.git
+[submodule "molecule_kmers"]
+	path = molecule_kmers
+	url = https://github.com/wheaton5/molecule_kmers.git
