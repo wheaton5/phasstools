@@ -29,7 +29,7 @@ with open(args.output+"/dump.out",'w') as out:
     with open(args.output+"/dump.err",'w') as err:
         subprocess.check_call(cmd, stdout = out, stderr = err)
 
-# potentially replace awk hist with kmc tools hist
+# awk magic to create histogram, potentially replace awk hist with kmc tools hist 
 with open(args.output+"/awk.sh", 'w') as out:
     out.write("awk 'NF{ count[ $2 ]++} END{ for ( name in count ) { print name \"\t\" count[ name ] };} ' "+args.output+"/kmer_counts.tsv > "+args.output+"/hist.tsv")
 subprocess.check_call(["chmod","777",args.output+"/awk.sh"])
