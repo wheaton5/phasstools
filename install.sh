@@ -4,4 +4,6 @@ make
 cd ../..
 cd het_snp_kmers
 cargo build --release
+cd ../molecule_kmers
+cargo build --release
 cd ..
