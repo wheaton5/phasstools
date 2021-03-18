@@ -7,3 +7,6 @@
 [submodule "molecule_kmers"]
 	path = molecule_kmers
 	url = https://github.com/wheaton5/molecule_kmers.git
+[submodule "phasst_phase"]
+	path = phasst_phase
+	url = https://github.com/wheaton5/phasst_phase.git
