@@ -12,3 +12,6 @@
 	path = phasst_phase
 	url = https://github.com/wheaton5/phasst_phase.git
 	branch = main
+[submodule "phasst_scaff"]
+	path = phasst_scaff
+	url = https://github.com/wheaton5/phasst_scaff.git
