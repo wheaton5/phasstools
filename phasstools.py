@@ -127,6 +127,7 @@ def chromosome():
     phasing()
     print("scaffolding with phased data")
     scaffolding()
+    print("done.")
 
 
 
