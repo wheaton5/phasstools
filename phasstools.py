@@ -33,7 +33,7 @@ parser_2.set_defaults(parser2=True)
 
 args = parser.parse_args()
 directory = os.path.dirname(os.path.realpath(__file__))
-if args.txg_reads:
+if args.linked_reads:
     assert args.barcode_whitelist, "requires barcode whitelist if you have linked reads"
 
 
