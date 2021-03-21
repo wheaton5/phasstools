@@ -56,6 +56,8 @@ def purge_dups():
     with open(args.output+"/calcuts.out",'w') as out:
         with open(args.output+"/calcuts.err",'w') as err:
             subprocess.check_call(cmd, stdout=out, stderr = err)
+
+def load_cutoffs():
     with open(args.output+"/calcuts.out") as cuts:
         for line in cuts:
             if line.startswith("["):
@@ -124,10 +126,11 @@ def chromosome():
         print("using previously generated kmer count data")
     if not os.path.exists(args.output + "/calcuts.out"):
         print("determining haploid coverage cutoffs")
-        cutoffs = purge_dups()
+        purge_dups()
     else:
         print("using previously generaged kmer coverage cutoffs")
     if not os.path.exists(args.output + "/fasta_kmers.bin"):
+        cutoffs = load_cutoffs()
         print("finding het kmers on read data")
         het_kmer_molecules(cutoffs)
     else:
