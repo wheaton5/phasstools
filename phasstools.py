@@ -127,7 +127,7 @@ def chromosome():
         cutoffs = purge_dups()
     else:
         print("using previously generaged kmer coverage cutoffs")
-    if not os.pash.exists(args.output + "/fasta_kmers.bin"):
+    if not os.path.exists(args.output + "/fasta_kmers.bin"):
         print("finding het kmers on read data")
         het_kmer_molecules(cutoffs)
     else:
