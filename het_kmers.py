@@ -14,7 +14,8 @@ parser.add_argument("--tmp",required=False, default = "/tmp", help = "temp direc
 parser.add_argument("-m","--memory", required=False, type=int, default = 24, help="memory in GB, default 24")
 args = parser.parse_args()
 
-subprocess.check_call(['mkdir',args.output])
+if not os.path.exists(args.output):
+    subprocess.check_call(['mkdir',args.output])
 
 mypath = os.path.dirname(os.path.realpath(__file__))
 cmd = ["singularity", "exec", mypath+"/kmc.sif", "kmc", "-k"+str(args.kmer_size)]
