@@ -114,6 +114,8 @@ def scaffolding():
 
 
 def chromosome():
+    if not os.path.exists(args.output):
+        os.mkdir(args.output)
     het_kmers()
     cutoffs = purge_dups()
     het_kmer_molecules(cutoffs)
