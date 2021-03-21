@@ -72,7 +72,7 @@ def het_kmer_molecules(cutoffs):
         "-t", str(args.threads), "-m", str(args.mem), "--min_coverage", str(cutoffs[0]), 
         "--max_coverage", str(cutoffs[1]), "--max_total_coverage", str(cutoffs[1]*2)]
     if args.linked_reads:
-        cmd.extend(["--txg_reads", args.linked_reads, "--whitelist", args.whitelist])
+        cmd.extend(["--txg_reads", args.linked_reads, "--whitelist", args.barcode_whitelist])
     if args.ccs_reads:
         cmd.extend(["--long_reads", args.ccs_reads])
     with open(args.output+"/het_kmer_molecules.out",'w') as out:
@@ -118,15 +118,30 @@ def chromosome():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
 
-    het_kmers()
-    print("determining haploid coverage cutoffs")
-    cutoffs = purge_dups()
-    print("finding het kmers on read data")
-    het_kmer_molecules(cutoffs)
-    print("phasing het kmers")
-    phasing()
-    print("scaffolding with phased data")
-    scaffolding()
+    if not os.path.exists(args.output + "/hist.tsv"):
+        het_kmers()
+    else:
+        print("using previously generated kmer count data")
+    if not os.path.exists(args.output + "/calcuts.out"):
+        print("determining haploid coverage cutoffs")
+        cutoffs = purge_dups()
+    else:
+        print("using previously generaged kmer coverage cutoffs")
+    if not os.pash.exists(args.output + "/fasta_kmers.bin"):
+        print("finding het kmers on read data")
+        het_kmer_molecules(cutoffs)
+    else:
+        print("using previously generated kmer molecule data")
+    if not os.path.exists(args.output + "/breaks.fa"):
+        print("phasing het kmers")
+        phasing()
+    else:
+        print("using previously generated phasing")
+    if not os.path.exists(args.output + "/scaff.tsv"):
+        print("scaffolding with phased data")
+        scaffolding()
+    else:
+        print("previous pipeline pointed at this directory is complete. If you want to rerun, specify a new output directory.")
     print("done.")
 
 

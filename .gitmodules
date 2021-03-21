@@ -15,3 +15,6 @@
 [submodule "phasst_scaff"]
 	path = phasst_scaff
 	url = https://github.com/wheaton5/phasst_scaff.git
+[submodule "FASTK"]
+	path = FASTK
+	url = https://github.com/thegenemyers/FASTK.git
