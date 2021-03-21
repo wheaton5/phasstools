@@ -32,6 +32,7 @@ parser_2.set_defaults(parser2=True)
 
 
 args = parser.parse_args()
+
 directory = os.path.dirname(os.path.realpath(__file__))
 if args.linked_reads:
     assert args.barcode_whitelist, "requires barcode whitelist if you have linked reads"
@@ -116,10 +117,15 @@ def scaffolding():
 def chromosome():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
+
     het_kmers()
+    print("determining haploid coverage cutoffs")
     cutoffs = purge_dups()
+    print("finding het kmers on read data")
     het_kmer_molecules(cutoffs)
+    print("phasing het kmers")
     phasing()
+    print("scaffolding with phased data")
     scaffolding()
 
 

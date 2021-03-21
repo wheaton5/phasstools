@@ -14,6 +14,7 @@ parser.add_argument("--tmp",required=False, default = "/tmp", help = "temp direc
 parser.add_argument("-m","--memory", required=False, type=int, default = 24, help="memory in GB, default 24")
 args = parser.parse_args()
 
+print("counting kmers with kmc")
 if not os.path.exists(args.output):
     subprocess.check_call(['mkdir',args.output])
 
@@ -25,11 +26,12 @@ cmd.extend(["-ci4", "-t"+str(args.threads), "-m"+str(args.memory), "-sm", "@"+ar
 with open(args.output+"/kmc.out",'w') as out:
     with open(args.output+"/kmc.err",'w') as err:
         subprocess.check_call(cmd, stdout=out, stderr=err)
+print("dumping kmer counts to file")
 cmd = ["singularity", "exec",  mypath+"/kmc.sif", "kmc_tools", "transform", args.output+"/"+args.output, "dump","-s", args.output+"/kmer_counts.tsv"]
 with open(args.output+"/dump.out",'w') as out:
     with open(args.output+"/dump.err",'w') as err:
         subprocess.check_call(cmd, stdout = out, stderr = err)
-
+print("generating kmer histogram")
 # awk magic to create histogram, potentially replace awk hist with kmc tools hist 
 with open(args.output+"/awk.sh", 'w') as out:
     out.write("awk 'NF{ count[ $2 ]++} END{ for ( name in count ) { print name \"\t\" count[ name ] };} ' "+args.output+"/kmer_counts.tsv > "+args.output+"/hist.tsv")
