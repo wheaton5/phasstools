@@ -37,7 +37,7 @@ cmd = [mypath+"/molecule_kmers/target/release/molecule_kmers", "--output", args.
 cmd.extend(["--txg_barcodes", args.whitelist])
 if not(args.txg_reads is None):
     cmd.extend(["--txg_reads", args.txg_reads])
-if args.hic_r1s:
+if args.hic_reads:
     cmd.extend(["--hic_reads", args.hic_reads])
 
 if args.long_reads:
