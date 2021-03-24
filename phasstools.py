@@ -99,7 +99,8 @@ def phasing():
 
 
 def scaffolding():
-    subprocess.check_call(["mkdir", args.output + "/breaks_kmers"])
+    if not os.path.exists(args.output + "/breaks_kmers"):
+        subprocess.check_call(["mkdir", args.output + "/breaks_kmers"])
     cmd = [directory + "/molecule_kmers/target/release/molecule_kmers", "-o", args.output + "/breaks_kmers", 
         "--paired_kmers", args.output + "/het_kmers.tsv", "--fasta", args.output + "/breaks.fa", 
         "--kmer_size", str(args.kmer_size), "--threads", "1"]
