@@ -39,6 +39,8 @@ if not(args.txg_reads is None):
     cmd.extend(["--txg_reads", args.txg_reads])
 if args.hic_reads:
     cmd.extend(["--hic_reads", args.hic_reads])
+if args.fasta:
+    cmd.extend(["--fasta", args.fasta])
 
 if args.long_reads:
     cmd.extend(["--long_reads", args.long_reads])
@@ -47,30 +49,7 @@ cmd.extend(["--paired_kmers", args.output + "/het_kmers.tsv"])
 print("running molecule kmers now")
 print(" ".join(cmd))
 with open(args.output + "/molecule_kmers.err", 'w') as err:
-    subprocess.check_call(cmd, stderr = err)
+    with open(args.output + "/molecule_kmers.out", 'w') as out:
+        subprocess.check_call(cmd, stderr = err, stdout = out)
 
-mol_out_txg = [args.output+"/molecules_txg_"+"{0:0=3d}".format(x)+".bin" for x in range(len(args.txg_r1s))]
-mol_out_longreads = [args.output+"/molecules_longreads_"+"{0:0=3d}".format(x)+".bin" for x in range(len(args.long_reads))]
-if not(args.hic_r1s is None):
-    mol_out_hic = [args.output+"/molecules_hic_"+"{0:0=3d}".format(x)+".bin" for x in range(len(args.hic_r1s))]
-
-print("\t".join(mol_out_txg))
-print("\t".join(mol_out_longreads))
-print("\t".join(mol_out_hic))
-
-
-cmd = [mypath + "/mixhap/target/release/mixhap"]
-cmd.extend(["--kmers", args.output+"/het_kmers.tsv"])
-cmd.extend(["--txg_mols"]+mol_out_txg)
-cmd.extend(["--longread_mols"]+mol_out_longreads)
-if not(args.hic_r1s is None):
-    cmd.extend(["--hic_mols"]+mol_out_hic)
-
-cmd.extend(["--longread_fqs"]+args.long_reads)
-cmd.extend(["--ploidy", str(args.ploidy), "--variants", args.output + "/molecule_kmers.custom_binary"])
-cmd.extend(["--barcode_whitelist", args.whitelist])
-print("command for phasing")
-print(" ".join(cmd))
-#with open(args.output+"/something_to_be_determined.out", 'w') as out:
-#    subprocess.check_call(cmd, stdout = out)
 
