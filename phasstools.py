@@ -85,7 +85,7 @@ def het_kmer_molecules(cutoffs):
 
 def phasing():
     cmd = [directory + "/phasst_phase/target/release/phasst_phase", "--output", args.output, 
-        "--het_kmers", args.output + "/het_kmers.tsv", "--hic_mols", args.output + "/hic_mols.fofn",
+        "--het_kmers", args.output + "/het_kmers.tsv", "--hic_mols", args.output + "/hic.fofn",
         "--threads", str(args.threads), "--assembly_fasta", args.fasta, "--assembly_kmers", 
         args.output + "/fasta_kmers.bin"]
     if args.linked_reads:
