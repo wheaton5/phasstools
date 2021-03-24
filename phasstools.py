@@ -90,7 +90,7 @@ def phasing():
         args.output + "/fasta_kmers.bin"]
     if args.linked_reads:
         cmd.extend(["--linked_read_mols", args.output + "/txg_mols.fofn"])
-    if args.long_reads:
+    if args.ccs_reads:
         cmd.extend(["--long_read_mols", args.output + "/ccs_mols.fofn"])
 
     with open(args.output + "/phasing.out", 'w') as out:
