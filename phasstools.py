@@ -89,9 +89,9 @@ def phasing():
         "--threads", str(args.threads), "--assembly_fasta", args.fasta, "--assembly_kmers", 
         args.output + "/fasta_kmers.bin"]
     if args.linked_reads:
-        cmd.extend(["--linked_read_mols", args.output + "/txg_mols.fofn"])
+        cmd.extend(["--linked_read_mols", args.output + "/txg.fofn"])
     if args.ccs_reads:
-        cmd.extend(["--long_read_mols", args.output + "/ccs_mols.fofn"])
+        cmd.extend(["--long_read_mols", args.output + "/ccs.fofn"])
 
     with open(args.output + "/phasing.out", 'w') as out:
         with open(args.output + "/phasing.err", 'w') as err:
