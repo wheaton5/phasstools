@@ -107,7 +107,7 @@ def scaffolding():
     with open(args.output + "/breaks_kmers/fasta_kmers.err", 'w') as err:
         with open(args.output + "/breaks_kmers/fasta_kmers.out", 'w') as out:
             subprocess.check_call(cmd, stderr=err, stdout = out)
-    cmd = [directory + "/phasst_scaff/target/release/phasst_phase", "-o", args.output, "--het_kmers",
+    cmd = [directory + "/phasst_scaff/target/release/phasst_scaff", "-o", args.output, "--het_kmers",
         args.output + "/het_kmers.tsv", "--linked_read_barcodes", args.output + "/txg_mols.fofn",
         "--hic_mols", args.output + "/hic_mols.fofn", "--assembly_fasta", args.output + "/breaks.fa",
         "--assembly_kmers", args.output + "/breaks_kmers/fasta_kmers.bin", "--phased_vcf", args.output + "/phasing_breaks.vcf"]
