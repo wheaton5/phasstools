@@ -105,9 +105,9 @@ def scaffolding():
         cmd = [directory + "/molecule_kmers/target/release/molecule_kmers", "-o", args.output + "/breaks_kmers", 
             "--paired_kmers", args.output + "/het_kmers.tsv", "--fasta", args.output + "/breaks.fa", 
             "--kmer_size", str(args.kmer_size), "--threads", "1"]
-    with open(args.output + "/breaks_kmers/fasta_kmers.err", 'w') as err:
-        with open(args.output + "/breaks_kmers/fasta_kmers.out", 'w') as out:
-            subprocess.check_call(cmd, stderr=err, stdout = out)
+        with open(args.output + "/breaks_kmers/fasta_kmers.err", 'w') as err:
+            with open(args.output + "/breaks_kmers/fasta_kmers.out", 'w') as out:
+                subprocess.check_call(cmd, stderr=err, stdout = out)
     cmd = [directory + "/phasst_scaff/target/release/phasst_scaff", "-o", args.output, "--het_kmers",
         args.output + "/het_kmers.tsv", "--linked_read_barcodes", args.output + "/txg_mols.fofn",
         "--hic_mols", args.output + "/hic_mols.fofn", "--assembly_fasta", args.output + "/breaks.fa",
