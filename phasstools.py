@@ -114,7 +114,7 @@ def scaffolding():
 
     with open(args.output + "/scaffolding.out", 'w') as out:
         with open(args.output + "/scaffolding.err", 'w') as err:
-            submodule.check_call(cmd, stdout = out, stderr = err)
+            subprocess.check_call(cmd, stdout = out, stderr = err)
 
 
 def chromosome():
