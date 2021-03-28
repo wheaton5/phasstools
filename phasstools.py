@@ -112,9 +112,10 @@ def scaffolding():
         args.output + "/het_kmers.tsv", "--linked_read_barcodes", args.output + "/txg.fofn",
         "--hic_mols", args.output + "/hic.fofn", "--assembly_fasta", args.output + "/breaks.fa",
         "--assembly_kmers", args.output + "/breaks_kmers/fasta_kmers.bin", "--phased_vcf", args.output + "/phasing_breaks.vcf"]
-
+    
     with open(args.output + "/scaffolding.out", 'w') as out:
         with open(args.output + "/scaffolding.err", 'w') as err:
+            err.write(cmd.join(" ")+"/n")
             subprocess.check_call(cmd, stdout = out, stderr = err)
 
 
