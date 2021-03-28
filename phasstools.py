@@ -3,6 +3,7 @@
 import argparse
 import subprocess
 import os
+from pyfaidx import Fasta
 
 import textwrap as _textwrap
 class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
@@ -108,9 +109,10 @@ def scaffolding():
         with open(args.output + "/breaks_kmers/fasta_kmers.err", 'w') as err:
             with open(args.output + "/breaks_kmers/fasta_kmers.out", 'w') as out:
                 subprocess.check_call(cmd, stderr=err, stdout = out)
+    Fasta(args.output+"/breaks.fa")
     cmd = [directory + "/phasst_scaff/target/release/phasst_scaff", "-o", args.output, "--het_kmers",
         args.output + "/het_kmers.tsv", "--linked_read_barcodes", args.output + "/txg.fofn",
-        "--hic_mols", args.output + "/hic.fofn", "--assembly_fasta", "/lustre/scratch118/malaria/team222/hh5/datasets/assembly/ilvanatal1/pipetest/breaks.fa",
+        "--hic_mols", args.output + "/hic.fofn", "--assembly_fasta", args.output + "/pipetest/breaks.fa",
         "--assembly_kmers", args.output + "/breaks_kmers/fasta_kmers.bin", "--phased_vcf", args.output + "/phasing_breaks.vcf"]
     
     with open(args.output + "/scaffolding.out", 'w') as out:
