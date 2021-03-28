@@ -110,7 +110,7 @@ def scaffolding():
                 subprocess.check_call(cmd, stderr=err, stdout = out)
     cmd = [directory + "/phasst_scaff/target/release/phasst_scaff", "-o", args.output, "--het_kmers",
         args.output + "/het_kmers.tsv", "--linked_read_barcodes", args.output + "/txg.fofn",
-        "--hic_mols", args.output + "/hic.fofn", "--assembly_fasta", args.output + "/breaks.fa",
+        "--hic_mols", args.output + "/hic.fofn", "--assembly_fasta", "/lustre/scratch118/malaria/team222/hh5/datasets/assembly/ilvanatal1/pipetest/breaks.fa",
         "--assembly_kmers", args.output + "/breaks_kmers/fasta_kmers.bin", "--phased_vcf", args.output + "/phasing_breaks.vcf"]
     
     with open(args.output + "/scaffolding.out", 'w') as out:
