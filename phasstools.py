@@ -115,7 +115,7 @@ def scaffolding():
     
     with open(args.output + "/scaffolding.out", 'w') as out:
         with open(args.output + "/scaffolding.err", 'w') as err:
-            err.write(cmd.join(" ")+"/n")
+            err.write(" ".join(cmd)+"/n")
             subprocess.check_call(cmd, stdout = out, stderr = err)
 
 
