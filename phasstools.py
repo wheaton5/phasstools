@@ -25,6 +25,7 @@ parser_1.add_argument("--ccs_reads", "-c", required=False, type=str, help="ccs r
 parser_1.add_argument("--short_reads", "-s", required=False, type=str, help= "short read data fofn alternating read1 and read2 filenames")
 parser_1.add_argument("--kmer_data", "-d", required=False, type=str, default="linked_reads",help="which data to use for kmer spectrum and het kmer detection, must be linked_reads, short_reads, or ccs_reads")
 parser_1.add_argument("--threads", "-t", required=False, type=int, default=8, help="number of threads to use at maximum")
+parser_1.add_argument("--hom_modimizer", required=False, type=int, default=11, help="use hom kmers when hom % modimizer == 0")
 parser_1.add_argument("--mem", "-m", required=False, type=int, default=20, help="max memory in Gb")
 parser_1.set_defaults(parser1=True)
 
@@ -73,7 +74,8 @@ def het_kmer_molecules(cutoffs):
     cmd = [directory + "/het_snp_molecule_kmers.py", "--hic_reads", args.hic_reads,
         "--fasta", args.fasta, "--kmer_size", str(args.kmer_size), "--output", args.output,
         "-t", str(args.threads), "-m", str(args.mem), "--min_coverage", str(cutoffs[0]), 
-        "--max_coverage", str(cutoffs[1]), "--max_total_coverage", str(cutoffs[1]*2)]
+        "--max_coverage", str(cutoffs[1]), "--max_total_coverage", str(cutoffs[1]*2)
+        "--hom_modimizer", str(args.hom_modimizer)]
     if args.linked_reads:
         cmd.extend(["--txg_reads", args.linked_reads, "--whitelist", args.barcode_whitelist])
     if args.ccs_reads:
