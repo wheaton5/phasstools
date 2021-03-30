@@ -74,7 +74,7 @@ def het_kmer_molecules(cutoffs):
     cmd = [directory + "/het_snp_molecule_kmers.py", "--hic_reads", args.hic_reads,
         "--fasta", args.fasta, "--kmer_size", str(args.kmer_size), "--output", args.output,
         "-t", str(args.threads), "-m", str(args.mem), "--min_coverage", str(cutoffs[0]), 
-        "--max_coverage", str(cutoffs[1]), "--max_total_coverage", str(cutoffs[1]*2)
+        "--max_coverage", str(cutoffs[1]), "--max_total_coverage", str(cutoffs[1]*2),
         "--hom_modimizer", str(args.hom_modimizer)]
     if args.linked_reads:
         cmd.extend(["--txg_reads", args.linked_reads, "--whitelist", args.barcode_whitelist])
