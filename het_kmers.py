@@ -12,6 +12,7 @@ parser.add_argument("-k","--kmer_size", required = False, type = int, default = 
 parser.add_argument("-t","--threads", required=True, help="threads")
 parser.add_argument("--tmp",required=False, default = "/tmp", help = "temp directory, default /tmp")
 parser.add_argument("-m","--memory", required=False, type=int, default = 24, help="memory in GB, default 24")
+parser.add_argument("--min_count", required=False, type=int, default = 15, help="min cutoff for kmer counts to exclude error peak")
 args = parser.parse_args()
 
 print("counting kmers with kmc")
@@ -22,7 +23,7 @@ mypath = os.path.dirname(os.path.realpath(__file__))
 cmd = ["singularity", "exec", mypath+"/kmc.sif", "kmc", "-k"+str(args.kmer_size)]
 if args.input[-3:] == 'bam':
     cmd.append('-fbam')
-cmd.extend(["-ci4", "-t"+str(args.threads), "-m"+str(args.memory), "-sm", "@"+args.input, args.output+"/"+args.output, args.tmp])
+cmd.extend(["-ci"+str(args.min_count), "-t"+str(args.threads), "-m"+str(args.memory), "-sm", "@"+args.input, args.output+"/"+args.output, args.tmp])
 with open(args.output+"/kmc.out",'w') as out:
     with open(args.output+"/kmc.err",'w') as err:
         subprocess.check_call(cmd, stdout=out, stderr=err)
