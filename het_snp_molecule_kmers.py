@@ -3,6 +3,7 @@
 import argparse
 import subprocess
 import os
+import time
 
 parser = argparse.ArgumentParser(description = "find heterozygous kmers from short read data")
 
@@ -31,7 +32,10 @@ cmd.extend(["--max_coverage", str(args.max_coverage), "--min_coverage", str(args
             "--unpaired_het_modimizer", args.unpaired_het_modimizer, "--hom_modimizer", args.hom_modimizer])
 print(" ".join(cmd))
 with open(args.output+"/het_kmers.tsv", 'w') as out:
+    start = time.time()/60
     subprocess.check_call(cmd,stdout=out)
+    end = time.time()/60
+    print("het_snp_kmers took "+str(end-start)+"min")
 
 cmd = [mypath+"/molecule_kmers/target/release/molecule_kmers", "--output", args.output, "--kmer_size", str(args.kmer_size)]
 cmd.extend(["--txg_barcodes", args.whitelist])
@@ -50,6 +54,9 @@ print("running molecule kmers now")
 print(" ".join(cmd))
 with open(args.output + "/molecule_kmers.err", 'w') as err:
     with open(args.output + "/molecule_kmers.out", 'w') as out:
+        start = time.time()/60
         subprocess.check_call(cmd, stderr = err, stdout = out)
+        end = time.time()/60
+        print("molecule_kmers took "+str(end-start)+"min")
 
 

@@ -4,6 +4,9 @@ import argparse
 import subprocess
 import os
 from pyfaidx import Fasta
+import time
+
+
 
 import textwrap as _textwrap
 class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
@@ -128,7 +131,12 @@ def chromosome():
         os.mkdir(args.output)
 
     if not os.path.exists(args.output + "/hist.tsv"):
+        start = time.time()/60
         het_kmers()
+        end = time.time()/60
+        print("het kmers took "+str(end-start)+"min")
+
+
     else:
         print("using previously generated kmer count data")
     if not os.path.exists(args.output + "/calcuts.out"):
@@ -139,17 +147,26 @@ def chromosome():
     if not os.path.exists(args.output + "/fasta_kmers.bin"):
         cutoffs = load_cutoffs()
         print("finding het kmers on read data")
+        start = time.time()/60
         het_kmer_molecules(cutoffs)
+        end = time.time()/60
+        print("het kmer molecules took "+str(end-start)+"min")
     else:
         print("using previously generated kmer molecule data")
     if not os.path.exists(args.output + "/breaks.fa"):
         print("phasing het kmers")
+        start = time.time()/60
         phasing()
+        end = time.time()/60
+        print("phasing took "+str(end-start)+"min")
     else:
         print("using previously generated phasing")
     if not os.path.exists(args.output + "/scaff.tsv"):
         print("scaffolding with phased data")
+        start = time.time()/60
         scaffolding()
+        end = time.time()/60
+        print("scaffolding took "+str(end-start)+"min")
     else:
         print("previous pipeline pointed at this directory is complete. If you want to rerun, specify a new output directory.")
     print("done.")
