@@ -5,6 +5,7 @@ import subprocess
 import os
 from pyfaidx import Fasta
 import time
+import sys
 
 
 
@@ -17,7 +18,7 @@ class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
         
 parser = argparse.ArgumentParser(prog="phasstools",formatter_class=LineWrapRawTextHelpFormatter)
 subparsers = parser.add_subparsers(help="command")
-parser_1 = subparsers.add_parser("chromosome", help='phase, break, and scaffold and input assembly',formatter_class=LineWrapRawTextHelpFormatter)
+parser_1 = subparsers.add_parser("scaff", help='phase, break, and scaffold and input assembly',formatter_class=LineWrapRawTextHelpFormatter)
 parser_1.add_argument("--output", "-o", required=True, type=str, help="output directory")
 parser_1.add_argument("--fasta", "-f", required= True, type=str, help="contigs to phase / phasing aware scaffold")
 parser_1.add_argument("--hic_reads", "-i", required=True, type=str, help="hic fofn (file of file names) with format R1_filename\nR2_filename etc")
@@ -30,6 +31,7 @@ parser_1.add_argument("--kmer_data", "-d", required=False, type=str, default="li
 parser_1.add_argument("--threads", "-t", required=False, type=int, default=8, help="number of threads to use at maximum")
 parser_1.add_argument("--hom_modimizer", required=False, type=int, default=11, help="use hom kmers when hom % modimizer == 0")
 parser_1.add_argument("--mem", "-m", required=False, type=int, default=20, help="max memory in Gb")
+parser_1.add_argument("--min_kmer_count", required = False, type = int, default = 10, help = "min kmer count to use in kmer spectrum")
 parser_1.set_defaults(parser1=True)
 
 parser_2 = subparsers.add_parser('phase', help='phase an individual with an existing reference or assembly')
@@ -37,6 +39,9 @@ parser_2.set_defaults(parser2=True)
 
 
 args = parser.parse_args()
+if len(sys.argv) == 1:
+    parser.print_help()
+    parser.exit()
 
 directory = os.path.dirname(os.path.realpath(__file__))
 if args.linked_reads:
@@ -55,6 +60,60 @@ def het_kmers():
     cmd = [directory + "/het_kmers.py", "-i", fofn, "-o", args.output, "-k", 
         str(args.kmer_size), "-t", str(args.threads), "-m", str(args.mem)]
     subprocess.check_call(cmd)
+
+def het_kmers_FASTK():
+    bc_trim = 0
+    r1s = []
+    r2s = []
+    if args.kmer_data == "linked_reads":
+        bc_trim = 23
+        with open(args.linked_reads) as fofnin:
+            for (index, line) in enumerate(fofnin):
+                if index % 2 == 0:
+                    r1s.append(line.strip().split()[0])
+                else:
+                    r2s.append(line.strip().split()[0])
+    elif args.kmer_data == "short_reads":
+        with open(args.short_reads) as srs:
+            for line in srs:
+                r1s.append(line.strip())
+    elif args.kmer_data == "ccs_reads":
+        fofn = args.ccs_reads
+        with open(args.ccs_reads) as ccs:
+            for line in ccs:
+                r1s.append(line.strip())
+    else:
+        assert False, "kmer_data must be one of linked_reads, short_reads, or ccs_reads"
+    name = args.output+"/fastk_spectrum"
+    if len(r2s) > 0:
+        name = args.output+"/fastk_spectrum_R2"
+        cmd = [directory+"/FASTK/Fastk", "-k"+str(args.kmer_size), 
+            "-t"+str(args.min_kmer_count), "-N"+name, "-M"+str(args.mem),
+            "-T"+str(args.threads)] + r2s
+        with open(name+".out",'w') as out:
+            with open(name+".err",'w') as err:
+                subprocess.check_call(cmd, stdout = out, stderr = err)
+        name = args.output+"/fastk_spectrum_R1"
+    cmd = [directory+"FASTK/Fastk", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
+        "-bc"+str(bc_trim), "-N"+name, "-M"+str(args.mem), "-T"+str(args.threads)] + r1s
+    with open(name+".out",'w') as out:
+        with open(name+".err",'w') as err:
+            subprocess.check_call(cmd, stdout = out, stderr = err)
+    if len(r2s) > 0:
+        cmd = [directory+"FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = "+ "A |+ B"+"'", 
+            args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
+        with open(args.output+"/fastk_spectrum.out", 'w') as out:
+            with open(args.output+"/fastk_spectrum.err", 'w') as err:
+                subprocess.check_call(cmd, stdout = out, stderr = err)
+    # histogram
+    cmd = [directory+"FASTK/Histex", "-A", "-h1:1000", args.output+"/fastk_spectrum"]
+    with open(args.output+"/histex.out",'w') as out:
+        with open(args.output+"/histex.err",'w') as err:
+            subprocess.check_call(cmd, stdout = out, stderr = err)
+    
+    
+    
+
 
 def purge_dups():
     cmd = [directory + "/purge_dups/bin/calcuts", args.output + "/hist.tsv"]
@@ -114,7 +173,7 @@ def scaffolding():
         with open(args.output + "/breaks_kmers/fasta_kmers.err", 'w') as err:
             with open(args.output + "/breaks_kmers/fasta_kmers.out", 'w') as out:
                 subprocess.check_call(cmd, stderr=err, stdout = out)
-    Fasta(args.output+"/breaks.fa")
+    Fasta(args.output+"/breaks.fa") # make sure there is a .fai index
     cmd = [directory + "/phasst_scaff/target/release/phasst_scaff", "-o", args.output, "--het_kmers",
         args.output + "/het_kmers.tsv", "--linked_read_barcodes", args.output + "/txg.fofn",
         "--hic_mols", args.output + "/hic.fofn", "--assembly_fasta", args.output + "/breaks.fa",
@@ -126,13 +185,14 @@ def scaffolding():
             subprocess.check_call(cmd, stdout = out, stderr = err)
 
 
-def chromosome():
+def scaffolding():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
 
     if not os.path.exists(args.output + "/hist.tsv"):
         start = time.time()/60
-        het_kmers()
+        #het_kmers()
+        het_kmers_FASTK()
         end = time.time()/60
         print("het kmers took "+str(end-start)+"min")
 
@@ -182,5 +242,5 @@ def chromosome():
 
 print(args)
 if args.parser1:
-    chromosome()
+    scaffolding()
 
