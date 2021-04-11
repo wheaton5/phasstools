@@ -194,6 +194,7 @@ def scaffolding():
         #het_kmers()
         het_kmers_FASTK()
         end = time.time()/60
+        sys.exit(0)
         print("het kmers took "+str(end-start)+"min")
 
 

@@ -18,4 +18,4 @@
 	branch = main
 [submodule "FASTK"]
 	path = FASTK
-	url = https://github.com/thegenemyers/FASTK.git
+	url = https://github.com/wheaton5/FASTK.git
