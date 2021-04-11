@@ -6,6 +6,8 @@ import os
 from pyfaidx import Fasta
 import time
 import sys
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 
 
 
@@ -155,16 +157,72 @@ def het_kmer_molecules_FASTK(cutoffs):
                     if len(line) < 5:
                         if len(hets) == 2:
                             out.write("".join(hets)+"\n")
-                            fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n>"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
+                            fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
+                            fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
+                            #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
+                            #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
                         hets = []
                     else:
                         hets.append(line.split())
+                    index += 2
                 if len(hets) == 2:
                     out.write("".join(hets)+"\n")
-                    fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n>"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
-    cmd = [directory + "/FASTK/FastK" "-k"+str(args.kmer_size), "-N"+args.output+"/het_kmers",
-        "-M"+str(args.mem), "-T"+str(args.threads), args.output+"/het_kmers.fasta"]
+                    fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
+                    fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
+                    #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
+                    #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
+
+    cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", "-N"+args.output+"/het_kmers",
+        "-M"+str(args.mem), "-T"+str(args.threads), args.output + "/het_kmers.fasta"]
     check_call(cmd, "het_kmers_fastk")
+    # binary profiles ccs
+    ccs_files = []
+    with open(args.ccs) as ccs:
+        for line in ccs:
+            ccs_files.append(line.split())
+    txg_files = []
+    with open(args.linked_reads) as txg:
+        for line in txg:
+            txg_files.append(line)
+    hic_files = []
+    with open(args.hic_reads) as hic:
+        for line in hic:
+            hic_files.append(hic.split())
+    cmds = []
+    for (index, ccs) in enumerate(ccs_files):
+        cmd = [directory + "/FASTK/Fastk", "-k"+str(args.kmer_size), "-t1", 
+            "-N"+args.output+"/ccs_"+str(index),
+            "-p:"+args.output+"/het_kmers", "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
+            "-T1", ccs]
+        cmds.append(cmd)
+    for (index, txg) in enumerate(txg_files):
+        bc_trim = 0
+        if index % 2 == 0:
+            bc_trim = 23
+        cmd = [directory + "/FASTK/Fastk", "-k"+str(args.kmer_size), "-bc"+str(bc_trim), "-t1", 
+            "-N"+args.output+"/txg_"+str(index), "-p:"+args.output+"/het_kmers", 
+            "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
+            "-T1", txg]
+        # NEED TO DO MORE FOR LINKED READS, barcode sorting and combine reads for 1 barcode separated by N's?
+    for (index, hic) in enumerate(hic_files):
+        cmd = [directory + "/FASTK/Fastk", "-k"+str(args.kmer_size), "-t1", 
+            "-N"+args.output+"/hic_"+str(index), "-p:"+args.output+"/het_kmers", 
+            "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
+            "-T1", hic]
+        cmds.append(cmd)
+
+    # run in parallel
+
+    with ThreadPoolExecutor(args.threads) as executor:
+        procs = []
+        for (index, cmd) in enumerate(cmds):
+            procs.append(executor.submit(check_call(cmd, "prof_"+str(index)+"_proc"))))
+        for future in concurrent.futures.as_completed(futures):
+            print(future.result())
+
+
+    # profiles
+
     
     
     
