@@ -48,6 +48,12 @@ if args.linked_reads:
     assert args.barcode_whitelist, "requires barcode whitelist if you have linked reads"
 
 
+def check_call(cmd, base_out_name):
+    with open(args.output+"/"+base_out_name+".out",'w') as out:
+        with open(args.output+"/"+base_out_name+".err", 'w') as err:
+            subprocess.check_call(cmd, stdout = out, stderr = err)
+
+
 def het_kmers():
     if args.kmer_data == "linked_reads":
         fofn = args.linked_reads
@@ -84,42 +90,33 @@ def het_kmers_FASTK():
                 r1s.append(line.strip())
     else:
         assert False, "kmer_data must be one of linked_reads, short_reads, or ccs_reads"
-    name = args.output+"/fastk_spectrum"
+    name = "fastk_spectrum"
     if len(r2s) > 0:
-        name = args.output+"/fastk_spectrum_R2"
+        name = "fastk_spectrum_R2"
         cmd = [directory+"/FASTK/Fastk", "-k"+str(args.kmer_size), 
-            "-t"+str(args.min_kmer_count), "-N"+name, "-M"+str(args.mem),
+            "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(args.mem),
             "-T"+str(args.threads)] + r2s
-        with open(name+".out",'w') as out:
-            with open(name+".err",'w') as err:
-                subprocess.check_call(cmd, stdout = out, stderr = err)
-        name = args.output+"/fastk_spectrum_R1"
+        check_call(cmd, name)
+        
+        name = "fastk_spectrum_R1"
     cmd = [directory+"FASTK/Fastk", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
-        "-bc"+str(bc_trim), "-N"+name, "-M"+str(args.mem), "-T"+str(args.threads)] + r1s
-    with open(name+".out",'w') as out:
-        with open(name+".err",'w') as err:
-            subprocess.check_call(cmd, stdout = out, stderr = err)
+        "-bc"+str(bc_trim), "-N"+args.output+"/"+name, "-M"+str(args.mem), "-T"+str(args.threads)] + r1s
+    check_call(cmd, name)
     if len(r2s) > 0:
         cmd = [directory+"FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = "+ "A |+ B"+"'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
-        with open(args.output+"/fastk_spectrum.out", 'w') as out:
-            with open(args.output+"/fastk_spectrum.err", 'w') as err:
-                subprocess.check_call(cmd, stdout = out, stderr = err)
+        check_call(cmd, "fastk_spectrum")
     # histogram
     cmd = [directory+"FASTK/Histex", "-A", "-h1:1000", args.output+"/fastk_spectrum"]
-    with open(args.output+"/histex.out",'w') as out:
-        with open(args.output+"/histex.err",'w') as err:
-            subprocess.check_call(cmd, stdout = out, stderr = err)
+    check_call(cmd, "histex")
     
     
     
 
 
-def purge_dups():
-    cmd = [directory + "/purge_dups/bin/calcuts", args.output + "/hist.tsv"]
-    with open(args.output+"/calcuts.out",'w') as out:
-        with open(args.output+"/calcuts.err",'w') as err:
-            subprocess.check_call(cmd, stdout=out, stderr = err)
+def purge_dups(fn):
+    cmd = [directory + "/purge_dups/bin/calcuts", fn]
+    check_call(cmd, "calcuts")
 
 def load_cutoffs():
     with open(args.output+"/calcuts.out") as cuts:
@@ -142,9 +139,33 @@ def het_kmer_molecules(cutoffs):
         cmd.extend(["--txg_reads", args.linked_reads, "--whitelist", args.barcode_whitelist])
     if args.ccs_reads:
         cmd.extend(["--long_reads", args.ccs_reads])
-    with open(args.output+"/het_kmer_molecules.out",'w') as out:
-        with open(args.output+"/het_kmer_molecules.err",'w') as err:
-            subprocess.check_call(cmd, stdout= out, stderr=err)
+    check_call(cmd, "het_kmer_molecules")
+
+def het_kmer_molecules_FASTK(cutoffs):
+    cmd = [directory + "/FASTK/Haplex", "-g"+str(cutoffs[0]+":"+str(cutoffs[1])),
+        args.output+"/kmer_spectrum"]
+    check_call(cmd, "haplex")
+    
+    with open(args.output+"/haplex.out") as hets:
+        with open(args.output+"/het_kmers.fasta",'w') as fast:
+            with open(args.output+"/het_kmers.tsv", 'w') as out:
+                hets = []
+                index = 0
+                for line in hets:
+                    if len(line) < 5:
+                        if len(hets) == 2:
+                            out.write("".join(hets)+"\n")
+                            fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n>"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
+                        hets = []
+                    else:
+                        hets.append(line.split())
+                if len(hets) == 2:
+                    out.write("".join(hets)+"\n")
+                    fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n>"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
+    cmd = [directory + "/FASTK/FastK" "-k"+str(args.kmer_size), "-N"+args.output+"/het_kmers",
+        "-M"+str(args.mem), "-T"+str(args.threads), args.output+"/het_kmers.fasta"]
+    check_call(cmd, "het_kmers_fastk")
+    
     
     
 
@@ -157,10 +178,7 @@ def phasing():
         cmd.extend(["--linked_read_mols", args.output + "/txg.fofn"])
     if args.ccs_reads:
         cmd.extend(["--long_read_mols", args.output + "/ccs.fofn"])
-
-    with open(args.output + "/phasing.out", 'w') as out:
-        with open(args.output + "/phasing.err", 'w') as err:
-            subprocess.check_call(cmd, stdout = out, stderr = err)
+    check_call(cmd, "phasing")
 
 
 def scaffolding():
@@ -170,46 +188,41 @@ def scaffolding():
         cmd = [directory + "/molecule_kmers/target/release/molecule_kmers", "-o", args.output + "/breaks_kmers", 
             "--paired_kmers", args.output + "/het_kmers.tsv", "--fasta", args.output + "/breaks.fa", 
             "--kmer_size", str(args.kmer_size), "--threads", "1"]
-        with open(args.output + "/breaks_kmers/fasta_kmers.err", 'w') as err:
-            with open(args.output + "/breaks_kmers/fasta_kmers.out", 'w') as out:
-                subprocess.check_call(cmd, stderr=err, stdout = out)
+        check_call(cmd, "breaks_kmers/fasta_kmers")
     Fasta(args.output+"/breaks.fa") # make sure there is a .fai index
     cmd = [directory + "/phasst_scaff/target/release/phasst_scaff", "-o", args.output, "--het_kmers",
         args.output + "/het_kmers.tsv", "--linked_read_barcodes", args.output + "/txg.fofn",
         "--hic_mols", args.output + "/hic.fofn", "--assembly_fasta", args.output + "/breaks.fa",
         "--assembly_kmers", args.output + "/breaks_kmers/fasta_kmers.bin", "--phased_vcf", args.output + "/phasing_breaks.vcf"]
-    
-    with open(args.output + "/scaffolding.out", 'w') as out:
-        with open(args.output + "/scaffolding.err", 'w') as err:
-            err.write(" ".join(cmd)+"\n")
-            subprocess.check_call(cmd, stdout = out, stderr = err)
+    check_call(cmd, "scaffolding")
 
 
 def scaffolding():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
 
-    if not os.path.exists(args.output + "/hist.tsv"):
+    #if not os.path.exists(args.output + "/hist.tsv"):
+    if not os.path.exists(args.output + "/kmer_spectrum.hist"):
         start = time.time()/60
         #het_kmers()
         het_kmers_FASTK()
         end = time.time()/60
         sys.exit(0)
         print("het kmers took "+str(end-start)+"min")
-
-
     else:
         print("using previously generated kmer count data")
     if not os.path.exists(args.output + "/calcuts.out"):
         print("determining haploid coverage cutoffs")
-        purge_dups()
+        #purge_dups(args.output+"/hist.tsv")
+        purge_dups(args.output+"/fastk_spectrum.hist")
     else:
         print("using previously generaged kmer coverage cutoffs")
     if not os.path.exists(args.output + "/fasta_kmers.bin"):
         cutoffs = load_cutoffs()
         print("finding het kmers on read data")
         start = time.time()/60
-        het_kmer_molecules(cutoffs)
+        #het_kmer_molecules(cutoffs)
+        het_kmer_molecules_FASTK(cutoffs)
         end = time.time()/60
         print("het kmer molecules took "+str(end-start)+"min")
     else:
