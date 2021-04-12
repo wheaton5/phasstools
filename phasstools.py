@@ -241,7 +241,7 @@ def het_kmer_molecules_FASTK(cutoffs):
     with ThreadPoolExecutor(args.threads) as executor:
         procs = []
         for (index, cmd) in enumerate(cmds):
-            procs.append(executor.submit(check_call(cmd, "prof_"+str(index)+"_proc")))
+            procs.append(executor.submit(check_call, cmd, "prof_"+str(index)+"_proc"))
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
 
