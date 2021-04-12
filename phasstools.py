@@ -95,7 +95,7 @@ def het_kmers_FASTK():
     name = "fastk_spectrum"
     if len(r2s) > 0:
         name = "fastk_spectrum_R2"
-        cmd = [directory+"/FASTK/Fastk", "-k"+str(args.kmer_size), 
+        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
             "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(args.mem),
             "-T"+str(args.threads)] + r2s
         check_call(cmd, name)
