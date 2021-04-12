@@ -123,9 +123,9 @@ def het_kmers_FASTK():
         for (index, cmd) in enumerate(cmds):
             print("appending proc")
             procs.append(executor.submit(check_call(cmd, "spectra_"+str(index)+"_proc")))
-        for future in concurrent.futures.as_completed(futures):
+        for proc in concurrent.futures.as_completed(procs):
             print("waiting for proc")
-            print(future.result())
+            print(proc.result())
 
 
     if len(cmds) > 1:
