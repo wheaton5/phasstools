@@ -190,7 +190,7 @@ def het_kmer_molecules_FASTK(cutoffs):
             hic_files.append(hic.split())
     cmds = []
     for (index, ccs) in enumerate(ccs_files):
-        cmd = [directory + "/FASTK/Fastk", "-k"+str(args.kmer_size), "-t1", 
+        cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
             "-N"+args.output+"/ccs_"+str(index),
             "-p:"+args.output+"/het_kmers", "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
             "-T1", ccs]
@@ -199,14 +199,14 @@ def het_kmer_molecules_FASTK(cutoffs):
         bc_trim = 0
         if index % 2 == 0:
             bc_trim = 23
-        cmd = [directory + "/FASTK/Fastk", "-k"+str(args.kmer_size), "-bc"+str(bc_trim), "-t1", 
+        cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-bc"+str(bc_trim), "-t1", 
             "-N"+args.output+"/txg_"+str(index), "-p:"+args.output+"/het_kmers", 
             "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
             "-T1", txg]
         cmds.append(cmd)
         # NEED TO DO MORE FOR LINKED READS, barcode sorting and combine reads for 1 barcode separated by N's?
     for (index, hic) in enumerate(hic_files):
-        cmd = [directory + "/FASTK/Fastk", "-k"+str(args.kmer_size), "-t1", 
+        cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
             "-N"+args.output+"/hic_"+str(index), "-p:"+args.output+"/het_kmers", 
             "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
             "-T1", hic]
@@ -272,7 +272,7 @@ def scaffolding():
     if not os.path.exists(args.output + "/calcuts.out"):
         print("determining haploid coverage cutoffs")
         #purge_dups(args.output+"/hist.tsv")
-        purge_dups(args.output+"/fastk_spectrum.hist")
+        purge_dups(args.output+"/histex.out")
     else:
         print("using previously generaged kmer coverage cutoffs")
     if not os.path.exists(args.output + "/fasta_kmers.bin"):
