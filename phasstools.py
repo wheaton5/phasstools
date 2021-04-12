@@ -95,21 +95,26 @@ def het_kmers_FASTK():
     name = "fastk_spectrum"
     cmds = []
     max_p = 0
-    for (index, r1) in enumerate(r1s):    
-        name = "fastk_spectrum_R1"
-        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
-            "-bc"+str(bc_trim), "-N"+args.output+"/"+name+"_"+str(index), "-M"+str(args.mem), "-T"+str(args.threads)] + r1
-        cmd.append(r1)
+    threads = args.threads
+    name = "fastk_spectrum_R1"
+    mem = args.mem
     if len(r2s) > 0:
-        for  r2 in r2s:
-            name = "fastk_spectrum_"
-            cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
-                "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name+str(index), "-M"+str(args.mem),
-                "-T"+str(args.threads)] + r2
-            cmds.append(cmd)
+        mem = args.mem // 2
+        threads = args.threads // 2
+    cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
+        "-bc"+str(bc_trim), "-N"+args.output+"/"+name, "-M"+str(mem), "-T"+str(threads)] + r1s 
+
+    cmds.append(cmd)
+    if len(r2s) > 0:
+        name = "fastk_spectrum_R2"
+        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
+            "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(mem),
+            "-T"+str(threads)] + r2s
+        cmds.append(cmd)
             #check_call(cmd, name)
 
     #check_call(cmd, name)
+    
     with ThreadPoolExecutor(args.threads) as executor:
         procs = []
         for (index, cmd) in enumerate(cmds):
