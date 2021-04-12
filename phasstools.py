@@ -118,7 +118,7 @@ def het_kmers_FASTK():
 
     #check_call(cmd, name)
     
-    with ThreadPoolExecutor(2) as executor:
+    with ThreadPoolExecutor(max_workers = 2) as executor:
         procs = []
         for (index, cmd) in enumerate(cmds):
             print("appending proc")
