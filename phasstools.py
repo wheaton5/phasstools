@@ -111,22 +111,25 @@ def het_kmers_FASTK():
             "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(mem),
             "-T"+str(threads)] + r2s
         cmds.append(cmd)
+    print(cmds)
+    print(threads)
+    print(mem)
             #check_call(cmd, name)
 
     #check_call(cmd, name)
     
-    with ThreadPoolExecutor(args.threads) as executor:
+    with ThreadPoolExecutor(2) as executor:
         procs = []
         for (index, cmd) in enumerate(cmds):
-            procs.append(executor.submit(check_call(cmd, "prof_"+str(index)+"_proc")))
+            print("appending proc")
+            procs.append(executor.submit(check_call(cmd, "spectra_"+str(index)+"_proc")))
         for future in concurrent.futures.as_completed(futures):
+            print("waiting for proc")
             print(future.result())
 
 
     if len(cmds) > 1:
-        x = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        subcmd = " |+ ".join([x[i] for i in range(cmds)])
-        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = "+ subcmd +"'", 
+        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = A |+ B" +"'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
         print(" ".join(cmd))
         check_call(cmd, "fastk_spectrum")
