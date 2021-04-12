@@ -203,6 +203,7 @@ def het_kmer_molecules_FASTK(cutoffs):
             "-N"+args.output+"/txg_"+str(index), "-p:"+args.output+"/het_kmers", 
             "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
             "-T1", txg]
+        cmds.append(cmd)
         # NEED TO DO MORE FOR LINKED READS, barcode sorting and combine reads for 1 barcode separated by N's?
     for (index, hic) in enumerate(hic_files):
         cmd = [directory + "/FASTK/Fastk", "-k"+str(args.kmer_size), "-t1", 
