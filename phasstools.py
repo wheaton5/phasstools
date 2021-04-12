@@ -129,7 +129,7 @@ def het_kmers_FASTK():
 
 
     if len(cmds) > 1:
-        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = A |+ B" +"'", 
+        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = (A |+ B)'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
         print(" ".join(cmd))
         check_call(cmd, "fastk_spectrum")
