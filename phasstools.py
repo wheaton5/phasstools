@@ -93,23 +93,40 @@ def het_kmers_FASTK():
     else:
         assert False, "kmer_data must be one of linked_reads, short_reads, or ccs_reads"
     name = "fastk_spectrum"
-    if len(r2s) > 0:
-        name = "fastk_spectrum_R2"
-        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
-            "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(args.mem),
-            "-T"+str(args.threads)] + r2s
-        check_call(cmd, name)
-        
+    cmds = []
+    max_p = 0
+    for (index, r1) in enumerate(r1s):    
         name = "fastk_spectrum_R1"
-    cmd = [directory+"FASTK/FastK", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
-        "-bc"+str(bc_trim), "-N"+args.output+"/"+name, "-M"+str(args.mem), "-T"+str(args.threads)] + r1s
-    check_call(cmd, name)
+        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
+            "-bc"+str(bc_trim), "-N"+args.output+"/"+name+"_"+str(index), "-M"+str(args.mem), "-T"+str(args.threads)] + r1
+        cmd.append(r1)
     if len(r2s) > 0:
-        cmd = [directory+"FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = "+ "A |+ B"+"'", 
+        for  r2 in r2s:
+            name = "fastk_spectrum_"
+            cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
+                "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name+str(index), "-M"+str(args.mem),
+                "-T"+str(args.threads)] + r2
+            cmds.append(cmd)
+            #check_call(cmd, name)
+
+    #check_call(cmd, name)
+    with ThreadPoolExecutor(args.threads) as executor:
+        procs = []
+        for (index, cmd) in enumerate(cmds):
+            procs.append(executor.submit(check_call(cmd, "prof_"+str(index)+"_proc")))
+        for future in concurrent.futures.as_completed(futures):
+            print(future.result())
+
+
+    if len(cmds) > 1:
+        x = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        subcmd = " |+ ".join([x[i] for i in range(cmds)])
+        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum = "+ subcmd +"'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
+        print(" ".join(cmd))
         check_call(cmd, "fastk_spectrum")
     # histogram
-    cmd = [directory+"FASTK/Histex", "-A", "-h1:1000", args.output+"/fastk_spectrum"]
+    cmd = [directory+"/FASTK/Histex", "-A", "-h1:1000", args.output+"/fastk_spectrum"]
     check_call(cmd, "histex")
     
     
