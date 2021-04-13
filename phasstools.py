@@ -50,10 +50,10 @@ if args.linked_reads:
     assert args.barcode_whitelist, "requires barcode whitelist if you have linked reads"
 
 
-def check_call(cmd, base_out_name):
+def check_call(cmd, base_out_name, shell = False):
     with open(args.output+"/"+base_out_name+".out",'w') as out:
         with open(args.output+"/"+base_out_name+".err", 'w') as err:
-            subprocess.check_call(cmd, stdout = out, stderr = err)
+            subprocess.check_call(cmd, shell = shell, stdout = out, stderr = err)
 
 
 def het_kmers():
@@ -132,7 +132,7 @@ def het_kmers_FASTK():
         cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum=(A|+B)'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
         print(" ".join(cmd))
-        check_call(cmd, "fastk_spectrum")
+        check_call(cmd, "fastk_spectrum", shell= True)
     # histogram
     cmd = [directory+"/FASTK/Histex", "-A", "-h1:1000", args.output+"/fastk_spectrum"]
     check_call(cmd, "histex")
