@@ -22,3 +22,4 @@
 [submodule "PHASE-MERS"]
 	path = PHASE-MERS
 	url = https://github.com/thegenemyers/PHASE-MERS.git
+	branch = main
