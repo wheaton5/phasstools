@@ -19,3 +19,6 @@
 [submodule "FASTK"]
 	path = FASTK
 	url = https://github.com/wheaton5/FASTK.git
+[submodule "PHASE-MERS"]
+	path = PHASE-MERS
+	url = https://github.com/thegenemyers/PHASE-MERS.git
