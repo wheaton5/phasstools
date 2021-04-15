@@ -204,15 +204,30 @@ def het_kmer_molecules_FASTK(cutoffs):
     with open(args.ccs_reads) as ccs:
         for line in ccs:
             ccs_files.append(line.strip())
+    cmds = []
+    threads = args.threads // 2
+    mem = args.mem // 2
+
     print("running fastk profiles on phasemer.U")
-    cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-p:"+args.output+"/phasemer.U", 
-        "-N"+args.output+"/phasemap.U"] + ccs_files
-    check_call(cmd, "fastk_phasemer.U")
+    cmd = [directory + "/FASTK/FastK", "-T"+str(threads), "-M"+str(mem), "-k"+str(args.kmer_size), 
+        "-p:"+args.output+"/phasemer.U", "-N"+args.output+"/phasemap.U"] + ccs_files
+    #check_call(cmd, "fastk_phasemer.U")
+    cmds.append(cmd)
     print("running fastk profiles on phasemer.L")
-    cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-p:"+args.output+"/phasemer.L", 
-        "-N"+args.output+"/phasemap.L"] + ccs_files
+    cmd = [directory + "/FASTK/FastK", "-T"+str(threads), "-M"+str(mem), "-k"+str(args.kmer_size), 
+        "-p:"+args.output+"/phasemer.L", "-N"+args.output+"/phasemap.L"] + ccs_files
     print(" ".join(cmd))
-    check_call(cmd, "fastk_phasemer.L")
+    cmds.append(cmd)
+    #check_call(cmd, "fastk_phasemer.L")
+
+
+    with ThreadPoolExecutor(max_workers = 2) as executor:
+        procs = []
+        for (index, cmd) in enumerate(cmds):
+            procs.append(executor.submit(check_call, cmd, "fastk_phasemer_"+str(index)))
+        for proc in concurrent.futures.as_completed(procs):
+            print("waiting for proc")
+
     print("running phasemap to combine phasemer.U and phasemer.L")
     cmd = [directory + "/FASTk/PHASE-MERS/Phasemap", "-D"+args.output+'/kmer_spectrum', 
         args.output+"/phasemap.U", args.output+"/phasemap.L"]
