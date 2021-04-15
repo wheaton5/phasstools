@@ -69,6 +69,8 @@ def het_kmers():
         str(args.kmer_size), "-t", str(args.threads), "-m", str(args.mem)]
     subprocess.check_call(cmd)
 
+def count_kmers_FASK():
+
 def het_kmers_FASTK():
     bc_trim = 0
     r1s = []
@@ -135,7 +137,7 @@ def het_kmers_FASTK():
 
 
     if len(cmds) > 1:
-        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads),  '-h'+str(args.min_kmer_count)+":1000"
+        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads),  '-h'+str(args.min_kmer_count)+":1000",
             "'"+args.output+"/fastk_spectrum=(A|+B)'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
         print(" ".join(cmd))
