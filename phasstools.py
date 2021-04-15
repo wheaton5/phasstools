@@ -199,14 +199,19 @@ def het_kmer_molecules_FASTK(cutoffs):
     print(" ".join(cmd))
     check_call(cmd, "phasemer")
 
+
+    ccs_files = []
+    with open(args.ccs) as ccs:
+        for line in ccs:
+            ccs_files.append(line.split())
     print("running fastk profiles on phasemer.U")
     cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-p:"+args.output+"/phasemer.U", 
-        "-N"+args.output+"/phasemap.U"]
+        "-N"+args.output+"/phasemap.U"] + ccs_files
     print(" ".join(cmd))
     check_call(cmd, "fastk_phasemer.U")
     print("running fastk profiles on phasemer.L")
     cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-p:"+args.output+"/phasemer.L", 
-        "-N"+args.output+"/phasemap.L"]
+        "-N"+args.output+"/phasemap.L"] + ccs_files 
     print(" ".join(cmd))
     check_call(cmd, "fastk_phasemer.L")
     print("running phasemap to combine phasemer.U and phasemer.L")
