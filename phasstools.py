@@ -146,13 +146,9 @@ def het_kmers_FASTK():
             with open(args.output+"/"+base_out_name+".err", 'w') as err:
                 subprocess.check_call(" ".join(cmd), shell = True, stdout = out, stderr = err)
         #check_call(" ".join(cmd), "fastk_spectrum", shell= True)
-        cmd = [directory+"/FASTK/FastK", ]
-        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
-            "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(mem),
-            "-T"+str(threads)] 
         
     # histogram
-    cmd = [directory+"/FASTK/Histex", "-A", "-h"+str(args.min_kmer_count)+":1000", args.output+"/fastk_spectrum"]
+    cmd = [directory+"/FASTK/Histex", "-A", "-h"+str(args.min_kmer_count)+":256", args.output+"/fastk_spectrum"]
     print(" ".join(cmd))
     check_call(cmd, "histex")
     
@@ -173,7 +169,8 @@ def load_cutoffs():
                 toks = line.strip().split()
                 minimum = int(toks[1])
                 maximum = int(toks[2])
-                return [minimum, maximum]
+                maxhom = int(toks[4])
+                return [minimum, maximum, maxhom]
 
 def het_kmer_molecules(cutoffs):
     cmd = [directory + "/het_snp_molecule_kmers.py", "--hic_reads", args.hic_reads,
@@ -194,6 +191,7 @@ def het_kmer_molecules_FASTK(cutoffs):
     cmd = [directory + "FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
         "-m3", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-L", args.output+'/kmer_spectrum']
     check_call(cmd, "haplex")
+    
     cmd = [directory + "FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
         "-m3", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-Ls", args.output+'/kmer_spectrum']
     check_call(cmd, "phasemer")
