@@ -190,12 +190,12 @@ def het_kmer_molecules_FASTK(cutoffs):
     #check_call(cmd, "haplex")
     print("running phasemer once for het kmer grouped output")
     cmd = [directory + "/FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
-        "-m30.0", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-Ls", args.output+'/fastk_spectrum']
+        "-m5.0", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-Ls", args.output+'/fastk_spectrum']
     print(" ".join(cmd))
     check_call(cmd, "haplex")
     print("running phasemer again for sorted output")
     cmd = [directory + "/FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
-        "-m30.0", "-N"+args.output+"/phasemer", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), args.output+'/fastk_spectrum']
+        "-m5.0", "-N"+args.output+"/phasemer", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), args.output+'/fastk_spectrum']
     print(" ".join(cmd))
     check_call(cmd, "phasemer")
 
