@@ -207,6 +207,7 @@ def het_kmer_molecules_FASTK(cutoffs):
     print("running fastk profiles on phasemer.U")
     cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-p:"+args.output+"/phasemer.U", 
         "-N"+args.output+"/phasemap.U"] + ccs_files
+    print(cmd)
     print(" ".join(cmd))
     check_call(cmd, "fastk_phasemer.U")
     print("running fastk profiles on phasemer.L")
