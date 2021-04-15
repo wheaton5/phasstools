@@ -152,7 +152,7 @@ def het_kmers_FASTK():
             "-T"+str(threads)] 
         
     # histogram
-    cmd = [directory+"/FASTK/Histex", "-A", "-h1:1000", args.output+"/fastk_spectrum"]
+    cmd = [directory+"/FASTK/Histex", "-A", "-h"+str(args.min_kmer_count)+":1000", args.output+"/fastk_spectrum"]
     check_call(cmd, "histex")
     
     
