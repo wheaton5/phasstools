@@ -135,7 +135,7 @@ def het_kmers_FASTK():
 
 
     if len(cmds) > 1:
-        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "-h"+str(args.min_kmer_count)+":10000", 
+        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "-h", 
             "'"+args.output+"/fastk_spectrum=(A|+B)'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
         print(" ".join(cmd))
@@ -195,50 +195,50 @@ def het_kmer_molecules_FASTK(cutoffs):
     cmd = [directory + "FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
         "-m3", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-Ls", args.output+'/kmer_spectrum']
     check_call(cmd, "phasemer")
-    return
     
-    with open(args.output+"/phasemer.out") as hets:
-        with open(args.output+"/het_kmers.fasta",'w') as fast:
-            with open(args.output+"/het_kmers.tsv", 'w') as out:
-                hets = []
-                index = 0
-                for line in hets:
-                    if len(line) < 5:
-                        if len(hets) == 2:
-                            out.write("".join(hets)+"\n")
-                            fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
-                            fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
-                            #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
-                            #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
-                        hets = []
-                    else:
-                        hets.append(line.split())
-                    index += 2
-                if len(hets) == 2:
-                    out.write("".join(hets)+"\n")
-                    fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
-                    fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
-                    #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
-                    #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
+    if False:
+        with open(args.output+"/phasemer.out") as hets:
+            with open(args.output+"/het_kmers.fasta",'w') as fast:
+                with open(args.output+"/het_kmers.tsv", 'w') as out:
+                    hets = []
+                    index = 0
+                    for line in hets:
+                        if len(line) < 5:
+                            if len(hets) == 2:
+                                out.write("".join(hets)+"\n")
+                                fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
+                                fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
+                                #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
+                                #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
+                            hets = []
+                        else:
+                            hets.append(line.split())
+                        index += 2
+                    if len(hets) == 2:
+                        out.write("".join(hets)+"\n")
+                        fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
+                        fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
+                        #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
+                        #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
 
-    cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", "-N"+args.output+"/het_kmers",
-        "-M"+str(args.mem), "-T"+str(args.threads), args.output + "/het_kmers.fasta"]
-    check_call(cmd, "het_kmers_fastk")
-    # binary profiles ccs
-    ccs_files = []
-    with open(args.ccs) as ccs:
-        for line in ccs:
-            ccs_files.append(line.split())
-    txg_files = []
-    with open(args.linked_reads) as txg:
-        for line in txg:
-            txg_files.append(line)
-    hic_files = []
-    with open(args.hic_reads) as hic:
-        for line in hic:
-            hic_files.append(hic.split())
-    
-    cmds = []
+        cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", "-N"+args.output+"/het_kmers",
+            "-M"+str(args.mem), "-T"+str(args.threads), args.output + "/het_kmers.fasta"]
+        check_call(cmd, "het_kmers_fastk")
+        # binary profiles ccs
+        ccs_files = []
+        with open(args.ccs) as ccs:
+            for line in ccs:
+                ccs_files.append(line.split())
+        txg_files = []
+        with open(args.linked_reads) as txg:
+            for line in txg:
+                txg_files.append(line)
+        hic_files = []
+        with open(args.hic_reads) as hic:
+            for line in hic:
+                hic_files.append(hic.split())
+        
+        cmds = []
 
 
     if False:
@@ -313,7 +313,7 @@ def scaffolding():
         os.mkdir(args.output)
 
     #if not os.path.exists(args.output + "/hist.tsv"):
-    if not os.path.exists(args.output + "/kmer_spectrum.hist"):
+    if not os.path.exists(args.output + "/fastk_spectrum.hist"):
         start = time.time()/60
         #het_kmers()
         het_kmers_FASTK()
