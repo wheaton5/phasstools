@@ -19,7 +19,7 @@
 [submodule "FASTK"]
 	path = FASTK
 	url = https://github.com/wheaton5/FASTK.git
-	branch = haplex
+	branch = master
 [submodule "PHASE-MERS"]
 	path = PHASE-MERS
 	url = https://github.com/thegenemyers/PHASE-MERS.git
