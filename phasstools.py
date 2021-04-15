@@ -174,11 +174,18 @@ def het_kmer_molecules(cutoffs):
     check_call(cmd, "het_kmer_molecules")
 
 def het_kmer_molecules_FASTK(cutoffs):
-    cmd = [directory + "/FASTK/Haplex", "-g"+str(cutoffs[0]+":"+str(cutoffs[1])),
-        args.output+"/kmer_spectrum"]
+    #cmd = [directory + "/FASTK/Haplex", "-g"+str(cutoffs[0])+":"+str(cutoffs[1]),
+    #    args.output+"/kmer_spectrum"]
+    #check_call(cmd, "haplex")
+    cmd = [directory + "FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
+        "-m3", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-L", args.output+'/kmer_spectrum']
     check_call(cmd, "haplex")
+    cmd = [directory + "FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
+        "-m3", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-Ls", args.output+'/kmer_spectrum']
+    check_call(cmd, "phasemer")
+    return
     
-    with open(args.output+"/haplex.out") as hets:
+    with open(args.output+"/phasemer.out") as hets:
         with open(args.output+"/het_kmers.fasta",'w') as fast:
             with open(args.output+"/het_kmers.tsv", 'w') as out:
                 hets = []
@@ -218,40 +225,44 @@ def het_kmer_molecules_FASTK(cutoffs):
     with open(args.hic_reads) as hic:
         for line in hic:
             hic_files.append(hic.split())
+    
     cmds = []
-    for (index, ccs) in enumerate(ccs_files):
-        cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
-            "-N"+args.output+"/ccs_"+str(index),
-            "-p:"+args.output+"/het_kmers", "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
-            "-T1", ccs]
-        cmds.append(cmd)
-    for (index, txg) in enumerate(txg_files):
-        bc_trim = 0
-        if index % 2 == 0:
-            bc_trim = 23
-        cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-bc"+str(bc_trim), "-t1", 
-            "-N"+args.output+"/txg_"+str(index), "-p:"+args.output+"/het_kmers", 
-            "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
-            "-T1", txg]
-        cmds.append(cmd)
-        # NEED TO DO MORE FOR LINKED READS, barcode sorting and combine reads for 1 barcode separated by N's?
-    for (index, hic) in enumerate(hic_files):
-        cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
-            "-N"+args.output+"/hic_"+str(index), "-p:"+args.output+"/het_kmers", 
-            "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
-            "-T1", hic]
-        cmds.append(cmd)
-
-    # run in parallel
-    with ThreadPoolExecutor(args.threads) as executor:
-        procs = []
-        for (index, cmd) in enumerate(cmds):
-            procs.append(executor.submit(check_call, cmd, "prof_"+str(index)+"_proc"))
-        for future in concurrent.futures.as_completed(futures):
-            print(future.result())
 
 
-    # profiles
+    if False:
+        cmds = []
+        for (index, ccs) in enumerate(ccs_files):
+            cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
+                "-N"+args.output+"/ccs_"+str(index),
+                "-p:"+args.output+"/het_kmers", "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
+                "-T1", ccs]
+            cmds.append(cmd)
+        for (index, txg) in enumerate(txg_files):
+            bc_trim = 0
+            if index % 2 == 0:
+                bc_trim = 23
+            cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-bc"+str(bc_trim), "-t1", 
+                "-N"+args.output+"/txg_"+str(index), "-p:"+args.output+"/het_kmers", 
+                "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
+                "-T1", txg]
+            cmds.append(cmd)
+        for (index, hic) in enumerate(hic_files):
+            cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
+                "-N"+args.output+"/hic_"+str(index), "-p:"+args.output+"/het_kmers", 
+                "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
+                "-T1", hic]
+            cmds.append(cmd)
+
+        # run in parallel
+        with ThreadPoolExecutor(args.threads) as executor:
+            procs = []
+            for (index, cmd) in enumerate(cmds):
+                procs.append(executor.submit(check_call, cmd, "prof_"+str(index)+"_proc"))
+            for future in concurrent.futures.as_completed(futures):
+                print(future.result())
+
+
+        # profiles
 
     
     
