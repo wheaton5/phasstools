@@ -69,7 +69,7 @@ def het_kmers():
         str(args.kmer_size), "-t", str(args.threads), "-m", str(args.mem)]
     subprocess.check_call(cmd)
 
-def count_kmers_FASK():
+#def count_kmers_FASK():
 
 def het_kmers_FASTK():
     bc_trim = 0
