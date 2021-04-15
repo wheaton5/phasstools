@@ -129,11 +129,9 @@ def het_kmers_FASTK():
     with ThreadPoolExecutor(max_workers = 2) as executor:
         procs = []
         for (index, cmd) in enumerate(cmds):
-            print("appending proc")
             procs.append(executor.submit(check_call, cmd, "spectra_"+str(index)+"_proc"))
         for proc in concurrent.futures.as_completed(procs):
             print("waiting for proc")
-            print(proc.result())
 
 
     if len(cmds) > 1:
@@ -153,6 +151,7 @@ def het_kmers_FASTK():
         
     # histogram
     cmd = [directory+"/FASTK/Histex", "-A", "-h"+str(args.min_kmer_count)+":1000", args.output+"/fastk_spectrum"]
+    print(" ".join(cmd))
     check_call(cmd, "histex")
     
     
@@ -319,7 +318,6 @@ def scaffolding():
         #het_kmers()
         het_kmers_FASTK()
         end = time.time()/60
-        sys.exit(0)
         print("het kmers took "+str(end-start)+"min")
     else:
         print("using previously generated kmer count data")
