@@ -201,7 +201,7 @@ def het_kmer_molecules_FASTK(cutoffs):
 
 
     ccs_files = []
-    with open(args.ccs) as ccs:
+    with open(args.ccs_reads) as ccs:
         for line in ccs:
             ccs_files.append(line.split())
     print("running fastk profiles on phasemer.U")
