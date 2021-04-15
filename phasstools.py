@@ -92,25 +92,33 @@ def het_kmers_FASTK():
                 r1s.append(line.strip())
     else:
         assert False, "kmer_data must be one of linked_reads, short_reads, or ccs_reads"
-    name = "fastk_spectrum"
+
     cmds = []
     max_p = 0
     threads = args.threads
-    name = "fastk_spectrum_R1"
+
     mem = args.mem
     if len(r2s) > 0:
         mem = args.mem // 2
         threads = args.threads // 2
-    cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
-        "-bc"+str(bc_trim), "-N"+args.output+"/"+name, "-M"+str(mem), "-T"+str(threads)] + r1s 
 
-    cmds.append(cmd)
+    
     if len(r2s) > 0:
+        name = "fastk_spectrum_R1"
+        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t4",#+str(args.min_kmer_count), 
+        "-bc"+str(bc_trim), "-N"+args.output+"/"+name, "-M"+str(mem), "-T"+str(threads)] + r1s 
+        cmds.append(cmd)
         name = "fastk_spectrum_R2"
-        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
-            "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(mem),
+        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t4",#+str(args.min_kmer_count), 
+            "-N"+args.output+"/"+name, "-M"+str(mem),
             "-T"+str(threads)] + r2s
         cmds.append(cmd)
+    else:
+        name = "fastk_spectrum"
+        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
+        "-bc"+str(bc_trim), "-N"+args.output+"/"+name, "-M"+str(mem), "-T"+str(threads)] + r1s 
+        cmds.append(cmd)
+    
     print(cmds)
     print(threads)
     print(mem)
@@ -129,7 +137,8 @@ def het_kmers_FASTK():
 
 
     if len(cmds) > 1:
-        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "'"+args.output+"/fastk_spectrum=(A|+B)'", 
+        cmd = [directory+"/FASTK/Logex", "-T"+str(args.threads), "-h"+str(args.min_kmer_count)+":10000", 
+            "'"+args.output+"/fastk_spectrum=(A|+B)'", 
             args.output+"/fastk_spectrum_R1", args.output+"/fastk_spectrum_R2"]
         print(" ".join(cmd))
         base_out_name = "fastk_spectrum"
@@ -137,6 +146,10 @@ def het_kmers_FASTK():
             with open(args.output+"/"+base_out_name+".err", 'w') as err:
                 subprocess.check_call(" ".join(cmd), shell = True, stdout = out, stderr = err)
         #check_call(" ".join(cmd), "fastk_spectrum", shell= True)
+        cmd = [directory+"/FASTK/FastK", ]
+        cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
+            "-t"+str(args.min_kmer_count), "-N"+args.output+"/"+name, "-M"+str(mem),
+            "-T"+str(threads)] 
         
     # histogram
     cmd = [directory+"/FASTK/Histex", "-A", "-h1:1000", args.output+"/fastk_spectrum"]
