@@ -215,6 +215,7 @@ def het_kmer_molecules_FASTK(cutoffs):
     cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-p:"+args.output+"/phasemer.L", 
         "-N"+args.output+"/phasemap.L"]
     cmd.extend(ccs_files)
+    print(ccs_files)
     print(" ".join(cmd))
     check_call(cmd, "fastk_phasemer.L")
     print("running phasemap to combine phasemer.U and phasemer.L")
