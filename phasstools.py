@@ -185,9 +185,16 @@ def het_kmer_molecules(cutoffs):
     check_call(cmd, "het_kmer_molecules")
 
 def het_kmer_molecules_FASTK(cutoffs):
-    #cmd = [directory + "/FASTK/Haplex", "-g"+str(cutoffs[0])+":"+str(cutoffs[1]),
-    #    args.output+"/kmer_spectrum"]
-    #check_call(cmd, "haplex")
+    ccs_files = []
+    with open(args.ccs_reads) as ccs:
+        for line in ccs:
+            ccs_files.append(line.strip())
+    print("running profiles of ccs data")
+    cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-p:"+args.output+'/fastk_spectrum', 
+        "-N"+args.output+"/ccs_prof"] + ccs_files
+    print(" ".join(cmd))
+    check_call(cmd, "ccs_prof")
+
     print("running phasemer once for het kmer grouped output")
     cmd = [directory + "/FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
         "-m5.0", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-Ls", args.output+'/fastk_spectrum']
@@ -200,10 +207,7 @@ def het_kmer_molecules_FASTK(cutoffs):
     check_call(cmd, "phasemer")
 
 
-    ccs_files = []
-    with open(args.ccs_reads) as ccs:
-        for line in ccs:
-            ccs_files.append(line.strip())
+    
     cmds = []
     threads = args.threads // 2
     mem = args.mem // 2
@@ -229,10 +233,10 @@ def het_kmer_molecules_FASTK(cutoffs):
             print("waiting for proc")
 
     print("running phasemap to combine phasemer.U and phasemer.L")
-    cmd = [directory + "/FASTk/PHASE-MERS/Phasemap", "-D"+args.output+'/kmer_spectrum', 
+    cmd = [directory + "/FASTK/PHASE-MERS/Phasemap",
         args.output+"/phasemap.U", args.output+"/phasemap.L"]
     print(" ".join(cmd))
-    check_call(cmd)
+    check_call(cmd, "phasemap_prof")
 
 
     
