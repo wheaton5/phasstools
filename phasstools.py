@@ -9,6 +9,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 
+FASTK = False
 
 
 import textwrap as _textwrap
@@ -55,6 +56,11 @@ def check_call(cmd, base_out_name, shell = False):
         with open(args.output+"/"+base_out_name+".err", 'w') as err:
             subprocess.check_call(cmd, shell = shell, stdout = out, stderr = err)
 
+def fofn_to_list(fofn):
+    with open(fofn) as infile:
+        files = [line.strip() for line in infile]
+    return(files)
+
 
 def het_kmers():
     if args.kmer_data == "linked_reads":
@@ -84,14 +90,9 @@ def het_kmers_FASTK():
                 else:
                     r2s.append(line.strip().split()[0])
     elif args.kmer_data == "short_reads":
-        with open(args.short_reads) as srs:
-            for line in srs:
-                r1s.append(line.strip())
+        r1s = fofn_to_list(args.short_reads)
     elif args.kmer_data == "ccs_reads":
-        fofn = args.ccs_reads
-        with open(args.ccs_reads) as ccs:
-            for line in ccs:
-                r1s.append(line.strip())
+        r1s = fofn_to_list(args.ccs_reads)
     else:
         assert False, "kmer_data must be one of linked_reads, short_reads, or ccs_reads"
 
@@ -185,11 +186,6 @@ def het_kmer_molecules(cutoffs):
     check_call(cmd, "het_kmer_molecules")
 
 def het_kmer_molecules_FASTK(cutoffs):
-    ccs_files = []
-    with open(args.ccs_reads) as ccs:
-        for line in ccs:
-            ccs_files.append(line.strip())
-
     print("running phasemer once for het kmer grouped output")
     cmd = [directory + "/FASTK/PHASE-MERS/Phasemer", "-h"+str(cutoffs[0])+':'+str(cutoffs[1]),
         "-m5.0", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), "-Ls", args.output+'/fastk_spectrum']
@@ -206,7 +202,10 @@ def het_kmer_molecules_FASTK(cutoffs):
     cmds = []
     threads = args.threads // 2
     mem = args.mem // 2
-
+    ccs_files = []
+    with open(args.ccs_reads) as ccs:
+        for line in ccs:
+            ccs_files.append(line.strip())
     print("running fastk profiles on phasemer.U")
     cmd = [directory + "/FASTK/FastK", "-T"+str(threads), "-M"+str(mem), "-k"+str(args.kmer_size), 
         "-p:"+args.output+"/phasemer.U", "-N"+args.output+"/phasemap.U"] + ccs_files
@@ -231,7 +230,14 @@ def het_kmer_molecules_FASTK(cutoffs):
     cmd = [directory + "/FASTK/PHASE-MERS/Phasemap",
         args.output+"/phasemap.U", args.output+"/phasemap.L"]
     print(" ".join(cmd))
-    check_call(cmd, "phasemap_prof")
+    check_call(cmd, "ccs_phasemap")
+
+    hic_files = []
+    with open(args.hic_reads) as hic:
+        for line in ccs:
+            ccs_files.append(line.strip())
+
+
 
 
     
@@ -351,27 +357,36 @@ def scaffolding():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
 
-    #if not os.path.exists(args.output + "/hist.tsv"):
-    if not os.path.exists(args.output + "/fastk_spectrum.hist"):
+    hist_check = args.output + "/hist.tsv"
+    if FASTK:
+        hist_check = args.output + "/fastk_spectrum.hist"
+    if not os.path.exists(hist_check):
         start = time.time()/60
-        #het_kmers()
-        het_kmers_FASTK()
+        if FASTK:
+            het_kmers_FASTK()
+        else:
+            het_kmers()
         end = time.time()/60
         print("het kmers took "+str(end-start)+"min")
     else:
         print("using previously generated kmer count data")
     if not os.path.exists(args.output + "/calcuts.out"):
         print("determining haploid coverage cutoffs")
-        #purge_dups(args.output+"/hist.tsv")
-        purge_dups(args.output+"/histex.out")
+        hist = args.output+"/hist.tsv"
+        if FASTK:
+            hist = args.output+"/histex.out"
+        purge_dups(hist)
+        
     else:
         print("using previously generaged kmer coverage cutoffs")
     if not os.path.exists(args.output + "/fasta_kmers.bin"):
         cutoffs = load_cutoffs()
         print("finding het kmers on read data")
         start = time.time()/60
-        #het_kmer_molecules(cutoffs)
-        het_kmer_molecules_FASTK(cutoffs)
+        if FASTK:
+            het_kmer_molecules_FASTK(cutoffs)
+        else:
+            het_kmer_molecules(cutoffs)
         end = time.time()/60
         print("het kmer molecules took "+str(end-start)+"min")
     else:
