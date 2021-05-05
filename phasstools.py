@@ -9,7 +9,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 
-FASTK = False
+FASTK = True
 
 
 import textwrap as _textwrap
