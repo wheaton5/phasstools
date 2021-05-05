@@ -20,6 +20,3 @@
 	path = PHASE-MERS
 	url = https://github.com/thegenemyers/PHASE-MERS.git
 	branch = main
-[submodule "FASTK"]
-	path = FASTK
-	url = https://github.com/thegenemyers/FASTK.git
