@@ -229,7 +229,7 @@ def het_kmer_molecules_FASTK(cutoffs):
 
     print("running phasemap to combine phasemer.U and phasemer.L")
     cmd = [directory + "/PHASE-MERS/Phasemap",
-        args.output+"/phasemap.U", args.output+"/phasemap.L"]
+        args.output+"/phasemap.U", args.output+"/phasemap.L"] + ccs_files
     print(" ".join(cmd))
     check_call(cmd, "ccs_phasemap")
 
