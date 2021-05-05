@@ -16,10 +16,6 @@
 	path = phasst_scaff
 	url = https://github.com/wheaton5/phasst_scaff.git
 	branch = main
-[submodule "FASTK"]
-	path = FASTK
-	url = https://github.com/wheaton5/FASTK.git
-	branch = master
 [submodule "PHASE-MERS"]
 	path = PHASE-MERS
 	url = https://github.com/thegenemyers/PHASE-MERS.git
