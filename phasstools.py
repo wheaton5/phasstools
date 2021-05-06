@@ -52,6 +52,8 @@ if args.linked_reads:
 
 
 def check_call(cmd, base_out_name, shell = False):
+    print("running "+base_out_name)
+    print(" ".join(cmd))
     with open(args.output+"/"+base_out_name+".out",'w') as out:
         with open(args.output+"/"+base_out_name+".err", 'w') as err:
             subprocess.check_call(cmd, shell = shell, stdout = out, stderr = err)
@@ -75,8 +77,40 @@ def het_kmers():
         str(args.kmer_size), "-t", str(args.threads), "-m", str(args.mem)]
     subprocess.check_call(cmd)
 
-#def count_kmers_FASK():
+def count_kmers_FASTK():
+    r1s = fofn_to_list(args.ccs_reads)
+    max_p = 0
+    threads = args.threads
 
+    mem = args.mem
+    name = "ccs_spectrum"
+    cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t"+str(args.min_kmer_count), 
+    "-N"+args.output+"/"+name, "-M"+str(mem), "-T"+str(threads)] + r1s 
+   
+    
+    check_call(cmd, name)
+    name = "fasta_spectrum"
+    cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
+    "-N"+args.output+"/"+name, "-M"+str(mem), "-T"+str(threads), args.fasta]
+    check_call(cmd, name)
+
+    name = "fasta_ccs_profile"
+    cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
+          "-N"+args.output+"/"+name, "-p:"+args.output+"/ccs_spectrum", "-M"+str(mem), "-T"+str(threads), args.fasta]
+    check_call(cmd, name)
+
+    name = "fasta_self_profile"
+    cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
+          "-N"+args.output+"/"+name, "-p:"+args.output+"/fasta_spectrum", "-M"+str(mem), "-T"+str(threads), args.fasta]
+    check_call(cmd, name)
+
+        
+
+
+    
+
+
+    
 def het_kmers_FASTK():
     bc_trim = 0
     r1s = []
@@ -126,9 +160,6 @@ def het_kmers_FASTK():
         print(" ".join(cmd))
     print(threads)
     print(mem)
-            #check_call(cmd, name)
-
-    #check_call(cmd, name)
     
     with ThreadPoolExecutor(max_workers = 2) as executor:
         procs = []
@@ -197,8 +228,6 @@ def het_kmer_molecules_FASTK(cutoffs):
         "-m5.0", "-N"+args.output+"/phasemer", "-d"+str(cutoffs[1])+":"+str(cutoffs[2]), args.output+'/fastk_spectrum']
     print(" ".join(cmd))
     check_call(cmd, "phasemer")
-
-
     
     cmds = []
     threads = args.threads // 2
@@ -239,34 +268,6 @@ def het_kmer_molecules_FASTK(cutoffs):
             ccs_files.append(line.strip())
 
 
-
-
-    
-    if False:
-        with open(args.output+"/phasemer.out") as hets:
-            with open(args.output+"/het_kmers.fasta",'w') as fast:
-                with open(args.output+"/het_kmers.tsv", 'w') as out:
-                    hets = []
-                    index = 0
-                    for line in hets:
-                        if len(line) < 5:
-                            if len(hets) == 2:
-                                out.write("".join(hets)+"\n")
-                                fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
-                                fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
-                                #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
-                                #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
-                            hets = []
-                        else:
-                            hets.append(line.split())
-                        index += 2
-                    if len(hets) == 2:
-                        out.write("".join(hets)+"\n")
-                        fast.write(">{}\n{}\n".format(index, hets[0].split()[0]))
-                        fast.write(">{}\n{}\n".format(index+1, hets[1].split()[0]))
-                        #fast.write(">"+str(index)+"\n"+hets[0].split()[0]+"\n")
-                        #fast.write(">"+str(index+1)+"\n"+hets[1].split()[0]+"\n")
-
         cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", "-N"+args.output+"/het_kmers",
             "-M"+str(args.mem), "-T"+str(args.threads), args.output + "/het_kmers.fasta"]
         check_call(cmd, "het_kmers_fastk")
@@ -287,40 +288,6 @@ def het_kmer_molecules_FASTK(cutoffs):
         cmds = []
 
 
-    if False:
-        cmds = []
-        for (index, ccs) in enumerate(ccs_files):
-            cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
-                "-N"+args.output+"/ccs_"+str(index),
-                "-p:"+args.output+"/het_kmers", "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
-                "-T1", ccs]
-            cmds.append(cmd)
-        for (index, txg) in enumerate(txg_files):
-            bc_trim = 0
-            if index % 2 == 0:
-                bc_trim = 23
-            cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-bc"+str(bc_trim), "-t1", 
-                "-N"+args.output+"/txg_"+str(index), "-p:"+args.output+"/het_kmers", 
-                "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
-                "-T1", txg]
-            cmds.append(cmd)
-        for (index, hic) in enumerate(hic_files):
-            cmd = [directory + "/FASTK/FastK", "-k"+str(args.kmer_size), "-t1", 
-                "-N"+args.output+"/hic_"+str(index), "-p:"+args.output+"/het_kmers", 
-                "-M"+str(args.mem), #"-T"+str(args.threads), ] TODODODODO currently only works with 1 thread
-                "-T1", hic]
-            cmds.append(cmd)
-
-        # run in parallel
-        with ThreadPoolExecutor(args.threads) as executor:
-            procs = []
-            for (index, cmd) in enumerate(cmds):
-                procs.append(executor.submit(check_call, cmd, "prof_"+str(index)+"_proc"))
-            for future in concurrent.futures.as_completed(futures):
-                print(future.result())
-
-
-        # profiles
 
     
     
@@ -355,6 +322,9 @@ def scaffolding():
 
 
 def scaffolding():
+    count_kmers_FASTK()
+    sys.exit()
+
     if not os.path.exists(args.output):
         os.mkdir(args.output)
 
