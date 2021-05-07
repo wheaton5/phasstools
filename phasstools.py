@@ -103,10 +103,49 @@ def count_kmers_FASTK():
     cmd = [directory+"/FASTK/FastK", "-k"+str(args.kmer_size), 
           "-N"+args.output+"/"+name, "-p:"+args.output+"/fasta_spectrum", "-M"+str(mem), "-T"+str(threads), args.fasta]
     check_call(cmd, name)
+    
+    fasta = Fasta(args.fasta)
+    contigs = len(fasta)
 
-        
 
+    #for contig in range(contigs):
+    name = "fasta_ccs_profile_text"
+    cmd = [directory+"/FASTK/Profex", args.output+"/fasta_ccs_profile"] + [str(x+1) for x in range(contigs)]
+    check_call(cmd, name)
 
+    name = "fasta_self_profile_text"
+    cmd = [directory+"/FASTK/Profex", args.output+"/fasta_self_profile"] + [str(x+1) for x in range(contigs)]
+    check_call(cmd, name)
+
+    total = 0
+    denom = 0
+    contig_kmer_cov = {}
+    contig = 0
+    with open(args.output+"/fasta_ccs_profile_text.out") as ccs_prof:
+        with open(args.output + "/fasta_self_profile.out") as self_prof:
+            for (line1, line2) in zip(ccs_prof, self_prof):
+                toks1 = line1.strip().split()
+                toks2 = line2.strip().split()
+                if len(toks1) == 0:
+                    ccs_prof.readline()
+                    self_prof.readline()
+                    contig += 1
+                    continue
+                elif toks1 == "Read":
+                    if denom == 0:
+                        continue
+                    contig_kmer_cov[contig] = total/denom
+                    total = 0
+                    denom = 0
+                else:
+                    if toks2[1] == "1":
+                        x = int(toks1[1])
+                        if x < 300:
+                            total += x
+                            denom += 1
+            contig_kmer_cov[contig] = total/denom
+    for (i, (contig, cov)) in enumerate(contig_kmer_cov.items()):
+        print("contig "+str(i+1)+" cov "+str(cov))
     
 
 
