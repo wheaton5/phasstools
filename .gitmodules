@@ -20,3 +20,6 @@
 	path = PHASE-MERS
 	url = https://github.com/thegenemyers/PHASE-MERS.git
 	branch = main
+[submodule "phaser"]
+	path = phaser
+	url = https://github.com/wheaton5/phaser.git
