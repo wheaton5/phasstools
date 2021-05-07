@@ -105,7 +105,7 @@ def count_kmers_FASTK():
     check_call(cmd, name)
     
     fasta = Fasta(args.fasta)
-    contigs = len(fasta)
+    contigs = len(fasta.keys())
 
 
     #for contig in range(contigs):
