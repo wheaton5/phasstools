@@ -130,8 +130,6 @@ def count_kmers_FASTK():
                 toks1 = line1.strip().split()
                 toks2 = line2.strip().split()
                 if len(toks1) == 0:
-                    ccs_prof.readline()
-                    self_prof.readline()
                     contig += 1
                     continue
                 elif toks1[0] == "Read":

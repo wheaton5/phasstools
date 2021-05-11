@@ -23,3 +23,4 @@
 [submodule "phaser"]
 	path = phaser
 	url = https://github.com/wheaton5/phaser.git
+	branch = main
