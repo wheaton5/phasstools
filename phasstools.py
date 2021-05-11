@@ -122,7 +122,7 @@ def count_kmers_FASTK():
 
     total = 0
     denom = 0
-    contig_kmer_cov = {}
+    contig_kmer_cov = []
     contig = 0
     with open(args.output+"/fasta_ccs_profile_text.out") as ccs_prof:
         with open(args.output + "/fasta_self_profile_text.out") as self_prof:
@@ -134,8 +134,9 @@ def count_kmers_FASTK():
                     continue
                 elif toks1[0] == "Read":
                     if denom == 0:
+                        contig_kmer_cov.push(0.0)
                         continue
-                    contig_kmer_cov[contig] = total/denom
+                    contig_kmer_cov.push(total/denom)
                     total = 0
                     denom = 0
                 else:
@@ -145,9 +146,14 @@ def count_kmers_FASTK():
                             total += x
                             denom += 1
             if denom != 0:
-                contig_kmer_cov[contig] = total/denom
-    for (i, (contig, cov)) in enumerate(contig_kmer_cov.items()):
-        print("contig "+str(i+1)+" cov "+str(cov))
+                contig_kmer_cov.push(total/denom)
+            else:
+                contig_kmer_cov.push(0.0)
+    with open(args.output+"/contig_kmer_cov.tsv",'w') as out:
+        for (i,  cov) in enumerate(contig_kmer_cov):
+            out.write("\t".join([fasta.keys()[i], str(cov)])+"\n")
+            print("contig " + str(i+1) + " " + fasta.keys()[i] + " cov " + str(cov))
+    return contig_kmer_cov
     
 
 
@@ -345,6 +351,17 @@ def phasing():
         cmd.extend(["--long_read_mols", args.output + "/ccs.fofn"])
     check_call(cmd, "phasing")
 
+def new_phasing():
+    cmd = [directory + "/phaser/target/release/phaser", "--output", args.output,
+        "--het_kmers", args.output + "/het_kmers.tsv", "--hic_mols", args.output + "/hic.fofn",
+        "--threads", str(args.threads), "--assembly_fasta", args.fasta, "--assembly_kmers", 
+        args.output + "/fasta_kmers.bin", "--contig_kmer_depths", args.output+"/contig_kmer_cov.tsv"]
+    if args.linked_reads:
+        cmd.extend(["--linked_read_mols", args.output + "/txg.fofn"])
+    if args.ccs_reads:
+        cmd.extend(["--long_read_mols", args.output + "/ccs.fofn"])
+    check_call(cmd, "phasing")
+
 
 def scaffolding():
     if not os.path.exists(args.output + "/breaks_kmers"):
@@ -363,11 +380,20 @@ def scaffolding():
 
 
 def scaffolding():
-    count_kmers_FASTK()
-    sys.exit()
+    
 
     if not os.path.exists(args.output):
         os.mkdir(args.output)
+
+    if not os.path.exists(args.output+"/contig_kmer_cov.tsv")
+        print("measuring unique kmer depth on contigs for sex/autosomal categorization")
+        start = time.time()/60
+        count_kmers_FASTK()
+        end = time.time()/60
+        print("unique kmer depth calculation took "+str(end-start)+"min")
+    else:
+        print("using previously calculated unique kmer depth for sex/autosomal categorization")
+
 
     hist_check = args.output + "/hist.tsv"
     if FASTK:
@@ -406,7 +432,7 @@ def scaffolding():
     if not os.path.exists(args.output + "/breaks.fa"):
         print("phasing het kmers")
         start = time.time()/60
-        phasing()
+        new_phasing()
         end = time.time()/60
         print("phasing took "+str(end-start)+"min")
     else:
