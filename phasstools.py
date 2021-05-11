@@ -117,12 +117,15 @@ def count_kmers_FASTK():
     cmd = [directory+"/FASTK/Profex", args.output+"/fasta_self_profile"] + [str(x+1) for x in range(contigs)]
     check_call(cmd, name)
 
+
+
+
     total = 0
     denom = 0
     contig_kmer_cov = {}
     contig = 0
     with open(args.output+"/fasta_ccs_profile_text.out") as ccs_prof:
-        with open(args.output + "/fasta_self_profile.out") as self_prof:
+        with open(args.output + "/fasta_self_profile_text.out") as self_prof:
             for (line1, line2) in zip(ccs_prof, self_prof):
                 toks1 = line1.strip().split()
                 toks2 = line2.strip().split()
@@ -131,7 +134,7 @@ def count_kmers_FASTK():
                     self_prof.readline()
                     contig += 1
                     continue
-                elif toks1 == "Read":
+                elif toks1[0] == "Read":
                     if denom == 0:
                         continue
                     contig_kmer_cov[contig] = total/denom
@@ -143,7 +146,8 @@ def count_kmers_FASTK():
                         if x < 300:
                             total += x
                             denom += 1
-            contig_kmer_cov[contig] = total/denom
+            if denom != 0:
+                contig_kmer_cov[contig] = total/denom
     for (i, (contig, cov)) in enumerate(contig_kmer_cov.items()):
         print("contig "+str(i+1)+" cov "+str(cov))
     
