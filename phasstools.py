@@ -151,8 +151,8 @@ def count_kmers_FASTK():
                 contig_kmer_cov.append(0.0)
     with open(args.output+"/contig_kmer_cov.tsv",'w') as out:
         for (i,  cov) in enumerate(contig_kmer_cov):
-            out.write("\t".join([fasta.keys()[i], str(cov)])+"\n")
-            print("contig " + str(i+1) + " " + fasta.keys()[i] + " cov " + str(cov))
+            out.write("\t".join([str(i+1), str(cov)])+"\n")
+            print("contig " + str(i+1) + " " + str(i+1) + " cov " + str(cov))
     return contig_kmer_cov
     
 
