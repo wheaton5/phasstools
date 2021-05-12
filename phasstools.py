@@ -385,7 +385,7 @@ def scaffolding():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
 
-    if not os.path.exists(args.output+"/contig_kmer_cov.tsv")
+    if not os.path.exists(args.output+"/contig_kmer_cov.tsv"):
         print("measuring unique kmer depth on contigs for sex/autosomal categorization")
         start = time.time()/60
         count_kmers_FASTK()
