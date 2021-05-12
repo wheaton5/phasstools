@@ -134,9 +134,9 @@ def count_kmers_FASTK():
                     continue
                 elif toks1[0] == "Read":
                     if denom == 0:
-                        contig_kmer_cov.push(0.0)
+                        contig_kmer_cov.append(0.0)
                         continue
-                    contig_kmer_cov.push(total/denom)
+                    contig_kmer_cov.append(total/denom)
                     total = 0
                     denom = 0
                 else:
@@ -146,9 +146,9 @@ def count_kmers_FASTK():
                             total += x
                             denom += 1
             if denom != 0:
-                contig_kmer_cov.push(total/denom)
+                contig_kmer_cov.append(total/denom)
             else:
-                contig_kmer_cov.push(0.0)
+                contig_kmer_cov.append(0.0)
     with open(args.output+"/contig_kmer_cov.tsv",'w') as out:
         for (i,  cov) in enumerate(contig_kmer_cov):
             out.write("\t".join([fasta.keys()[i], str(cov)])+"\n")
