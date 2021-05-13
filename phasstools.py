@@ -363,7 +363,7 @@ def new_phasing():
     check_call(cmd, "phasing")
 
 
-def scaffolding():
+def phasst_scaff():
     if not os.path.exists(args.output + "/breaks_kmers"):
         subprocess.check_call(["mkdir", args.output + "/breaks_kmers"])
     if not os.path.exists(args.output + "/breaks_kmers/fasta_kmers.bin"):
@@ -441,7 +441,7 @@ def scaffolding():
     if not os.path.exists(args.output + "/scaff.tsv"):
         print("scaffolding with phased data")
         start = time.time()/60
-        scaffolding()
+        phasst_scaff()
         end = time.time()/60
         print("scaffolding took "+str(end-start)+"min")
     else:
