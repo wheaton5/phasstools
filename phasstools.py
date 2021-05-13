@@ -381,6 +381,7 @@ def scaffolding():
 
 def scaffolding():
     
+    print("welcome to phasstools scaffolding")
 
     if not os.path.exists(args.output):
         os.mkdir(args.output)
