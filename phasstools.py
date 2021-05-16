@@ -133,6 +133,8 @@ def count_kmers_FASTK():
                     contig += 1
                     continue
                 elif toks1[0] == "Read":
+                    if toks1[1] == "1:":
+                        continue
                     if denom == 0:
                         contig_kmer_cov.append(0.0)
                         continue
