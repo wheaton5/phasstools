@@ -75,7 +75,7 @@ def het_kmers():
         assert False, "kmer_data must be one of linked_reads, short_reads, or ccs_reads" 
     cmd = [directory + "/het_kmers.py", "-i", fofn, "-o", args.output, "-k", 
         str(args.kmer_size), "-t", str(args.threads), "-m", str(args.mem)]
-    check_call(cmd)
+    check_call(cmd, "kmc_call")
 
 def count_kmers_FASTK():
     r1s = fofn_to_list(args.ccs_reads)
