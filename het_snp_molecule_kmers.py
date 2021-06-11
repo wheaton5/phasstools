@@ -37,6 +37,22 @@ with open(args.output+"/het_kmers.tsv", 'w') as out:
     end = time.time()/60
     print("het_snp_kmers took "+str(end-start)+"min")
 
+with open(args.output+"/het_kmers_hist.tsv", 'w') as out:
+    with open(args.output+"/het_kmers.tsv") as infile:
+        counts = np.zeros(1000)
+        out.write("\t".join(["count","frequency"])+"\n")
+        for line in infile:
+            toks = line.strip().split()
+            if toks[3] == ".":
+                continue
+            count1 = int(toks[1])
+            count2 = int(toks[3])
+            counts[count1] += 1
+            counts[count2] += 1
+        for index in range(len(counts)):
+            out.write("\t".join([str(index), str(counts[index])])+"\n")
+
+
 cmd = [mypath+"/molecule_kmers/target/release/molecule_kmers", "--output", args.output, "--kmer_size", str(args.kmer_size)]
 cmd.extend(["--txg_barcodes", args.whitelist])
 if not(args.txg_reads is None):
