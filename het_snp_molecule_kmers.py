@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import os
 import time
+import numpy as np
 
 parser = argparse.ArgumentParser(description = "find heterozygous kmers from short read data")
 
