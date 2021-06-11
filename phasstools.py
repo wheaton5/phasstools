@@ -8,6 +8,7 @@ import time
 import sys
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
+import numpy as np
 
 FASTK = False
 
