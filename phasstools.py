@@ -74,7 +74,7 @@ def het_kmers():
     else:
         assert False, "kmer_data must be one of linked_reads, short_reads, or ccs_reads" 
     cmd = [directory + "/het_kmers.py", "-i", fofn, "-o", args.output, "-k", 
-        str(args.kmer_size), "-t", str(args.threads), "-m", str(args.mem)]
+        str(args.kmer_size), "-t", str(args.threads), "-m", str(args.mem), "--min_count", str(args.min_kmer_count)]
     check_call(cmd, "kmc_call")
 
 def count_kmers_FASTK():
@@ -250,15 +250,16 @@ def load_cutoffs():
             else:
                 toks = line.strip().split()
                 minimum = int(toks[1])
-                maximum = int(toks[2])
-                maxhom = int(toks[4])
-                return [minimum, maximum, maxhom]
+                middle = int(toks[3])
+                maximum = int(toks[5])
+                maxhom = int(toks[5])
+                return [minimum, middle, maximum, maxhom]
 
 def het_kmer_molecules(cutoffs):
     cmd = [directory + "/het_snp_molecule_kmers.py", "--hic_reads", args.hic_reads,
         "--fasta", args.fasta, "--kmer_size", str(args.kmer_size), "--output", args.output,
         "-t", str(args.threads), "-m", str(args.mem), "--min_coverage", str(cutoffs[0]), 
-        "--max_coverage", str(cutoffs[1]), "--max_total_coverage", str(cutoffs[1]*2),
+        "--max_coverage", str(cutoffs[2]), "--max_total_coverage", str(cutoffs[2]*2),
         "--hom_modimizer", str(args.hom_modimizer)]
     if args.linked_reads:
         cmd.extend(["--txg_reads", args.linked_reads, "--whitelist", args.barcode_whitelist])
@@ -417,7 +418,6 @@ def scaffolding():
         if FASTK:
             hist = args.output+"/histex.out"
         purge_dups(hist)
-        
     else:
         print("using previously generaged kmer coverage cutoffs")
     if not os.path.exists(args.output + "/fasta_kmers.bin"):
