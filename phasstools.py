@@ -61,7 +61,7 @@ def check_call(cmd, base_out_name, shell = False):
 
 def fofn_to_list(fofn):
     with open(fofn) as infile:
-        files = [line.strip() for line in infile]
+        files = [line.strip().split()[0] for line in infile]
     return(files)
 
 
