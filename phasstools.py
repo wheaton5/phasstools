@@ -367,6 +367,14 @@ def new_phasing():
     check_call(cmd, "phasing")
 
 
+def break_contigs():
+    cmd = [directory + "/phasst_break/target/release/phasst_break", "--output", args.output,
+        "--het_kmers", args.output + "/het_kmers.tsv", "--hic_mols", args.output + "/hic.fofn",
+        "--threads", str(args.threads), "--assembly_fasta", args.fasta, "--assembly_kmers", 
+        args.output + "/fasta_kmers.bin"]
+    check_call(cmd, "breaks")
+
+
 def phasst_scaff():
     if not os.path.exists(args.output + "/breaks_kmers"):
         subprocess.check_call(["mkdir", args.output + "/breaks_kmers"])
@@ -383,6 +391,9 @@ def phasst_scaff():
     check_call(cmd, "scaffolding")
 
 
+
+
+
 def scaffolding():
     
     print("welcome to phasstools scaffolding")
@@ -393,7 +404,7 @@ def scaffolding():
     if not os.path.exists(args.output+"/contig_kmer_cov.tsv"):
         print("measuring unique kmer depth on contigs for sex/autosomal categorization")
         start = time.time()/60
-        count_kmers_FASTK()
+        #count_kmers_FASTK() TODO maybe bring this back
         end = time.time()/60
         print("unique kmer depth calculation took "+str(end-start)+"min")
     else:
@@ -433,7 +444,18 @@ def scaffolding():
         print("het kmer molecules took "+str(end-start)+"min")
     else:
         print("using previously generated kmer molecule data")
+
     if not os.path.exists(args.output + "/breaks.fa"):
+        print("checking for contig breaks with hic data")
+        start = time.time()/60
+        break_contigs()
+        end = time.time()/60
+        print("phasst break took "+str(end-start)+"min")
+    else:
+        print("using previously generated breaks.fa")
+    assert False #TODO remove
+
+    if not os.path.exists(args.output + "/phasing_breaks.vcf"):
         print("phasing het kmers")
         start = time.time()/60
         new_phasing()
@@ -453,12 +475,6 @@ def scaffolding():
 
 
 
-    
-
-
-
-
-    
 
 print(args)
 if args.parser1:

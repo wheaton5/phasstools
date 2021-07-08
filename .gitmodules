@@ -24,3 +24,7 @@
 	path = phaser
 	url = https://github.com/wheaton5/phaser.git
 	branch = main
+[submodule "phasst_break"]
+	path = phasst_break
+	url = https://github.com/wheaton5/phasst_break.git
+	branch = main
