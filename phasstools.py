@@ -449,7 +449,7 @@ def scaffolding():
         print("checking for contig breaks with hic data")
         start = time.time()/60
         phasing()
-        break_contigs()
+        #break_contigs()
         end = time.time()/60
         print("phasst break took "+str(end-start)+"min")
     else:
